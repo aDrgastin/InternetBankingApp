@@ -2,7 +2,7 @@ import mysql2 from 'mysql2/promise'
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-export const port = process.env.port || process.env.PORT;
+export const port = process.env.port || process.env.PORT || 8080;
 
 export let dbPool = null;
 try {
@@ -18,10 +18,11 @@ try {
     console.error('Error while connecting to database:', err);
 }
 
-export const hashSecret = '';
+export const tokenLength = 32;
+export const jwtSecret = process.env.JWT_SECRET;
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 export default {
-    port, dbPool, hashSecret, __filename, __dirname
+    port, dbPool, tokenLength, jwtSecret, __filename, __dirname
 };
