@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import config from '../../config.js'
 
 /**
  * Extracts token from authorization header and stores decoded token in req.decoded

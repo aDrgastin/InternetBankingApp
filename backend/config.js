@@ -20,9 +20,10 @@ try {
 
 export const tokenLength = 32;
 export const jwtSecret = process.env.JWT_SECRET;
+export const jwtExpiresIn = process.env.JWT_EXPIRES_IN ?? '1d';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 export default {
-    port, dbPool, tokenLength, jwtSecret, __filename, __dirname
+    port, dbPool, tokenLength, jwtSecret, jwtExpiresIn, __filename, __dirname
 };

@@ -2,23 +2,18 @@ import express from 'express'
 //import 'dotenv/config'
 import morgan from 'morgan'
 import path from 'path'
-//import { fileURLToPath } from 'url'
 import helmet from 'helmet'
 import cors from 'cors'
-//import mysql2 from 'mysql2/promise'
-//import crypto from 'crypto'
-//import jwt from 'jsonwebtoken'
 import config from './config.js'
-import api from './app/routes/api.js'
 import authRoutes from './app/routes/authRoutes.js'
 import transactionRoutes from './app/routes/transactionRoutes.js'
 import accountRoutes from './app/routes/accountRoutes.js'
 
 const app = express();
-app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(config.__dirname, 'public', 'app')));
+app.use(morgan('dev'));
 app.use(helmet());
 //app.use(cors());
 app.use((req, res, next) => {
@@ -27,7 +22,6 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
     next();
 });
-const dbPool = config.dbPool;
 
 const mainRouter = express.Router();
 mainRouter.route('/').get((req, res) => {
@@ -35,11 +29,9 @@ mainRouter.route('/').get((req, res) => {
 });
 app.use('/', mainRouter);
 
-const authRouter = auth();
-app.use('/auth', authRouter);
-
-const apiRouter = api();
-app.use('/api', apiRouter);
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/accounts', accountRoutes);
 
 app.use((req, res) => {
     res.status(404).end('Page not found!');
