@@ -1,0 +1,127 @@
+:host {
+  display: block;
+  position: relative;
+  transition: width .3s ease-in-out;
+}
+
+.sidebar {
+  width: 100%;
+  height: 100%;
+  padding: 1rem 0;
+  overflow-x: hidden;
+  background-color: #1a252f;
+  color: #ecf0f1;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 5rem;
+    right: 0;
+    translate: 50% 0;
+    width: 40px;
+    height: 40px;
+    background-color: #117eeb;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    padding: .5rem;
+    z-index: 100;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: background-color .1s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: #34495e;
+}
+
+.sidebar-toggle-btn:hover i {
+  opacity: 0.8;
+}
+
+.sidebar-toggle-btn i {
+  transition: rotate .3s ease;
+}
+
+:host.collapsed .sidebar-toggle-btn i {
+  rotate: 180deg;
+}
+
+.sidebar-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+  color: #E5E7EB;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  transition: color .2s ease;
+}
+
+.sidebar-logo:hover {
+  color: #117eeb;
+}
+
+.sidebar-menu {
+  padding: 1rem 0;
+}
+
+.sidebar-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu ul li+li {
+  margin-top: 5px;
+}
+
+.sidebar-menu ul li {
+  position: relative;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  color: #ecf0f1;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  transition: all .2s ease;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left-color: #117eeb;
+}
+
+.sidebar-collapsed .sidebar-menu-item {
+  position: static;
+}
+
+.sidebar-item i {
+  margin-right: .75rem;
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.sidebar-item i.collapsed {
+  margin-right: 0;
+}
+
+.sidebar-item-text.collapsed {
+  display: none;
+}

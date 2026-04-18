@@ -1,0 +1,36 @@
+<aside class="sidebar">
+    <button class="sidebar-toggle-btn" type="button" (click)="toggleSidebar()">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="sidebar-header">
+        <a href="#" class="sidebar-logo" [routerLink]="['']">{{ isSidebarCollapsed() ? 'B' : 'BankingApp' }}</a>
+    </div>
+    <nav class="sidebar-menu">
+        <ul>
+            <li><a href="#" [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-item" title="Dashboard">
+                <i class="fa-solid fa-house" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Dashboard</span>
+            </a></li>
+            <li><a href="#" [routerLink]="['/accounts']" routerLinkActive="active" class="sidebar-item" title="Accounts">
+                <i class="fa-solid fa-credit-card" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Accounts</span>
+            </a></li>
+            <li><a href="#" [routerLink]="['/transactions']" routerLinkActive="active" class="sidebar-item" title="Transactions">
+                <i class="fa-solid fa-arrow-right-arrow-left" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Transactions</span>
+            </a></li>
+            <li><a href="#" [routerLink]="['/profile']" routerLinkActive="active" class="sidebar-item" title="Profile">
+                <i class="fa-regular fa-circle-user" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Profile</span>
+            </a></li>
+            <li><a href="#" [routerLink]="['/login']" routerLinkActive="active" class="sidebar-item" title="Login">
+                <i class="fa-solid fa-arrow-right-to-bracket" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Login</span>
+            </a></li>
+            <li><a href="#" [routerLink]="['/register']" routerLinkActive="active" class="sidebar-item" title="Register">
+                <i class="fa-solid fa-registered" [class.collapsed]="isSidebarCollapsed()"></i>
+                <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Register</span>
+            </a></li>
+        </ul>
+    </nav>
+</aside>
