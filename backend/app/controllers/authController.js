@@ -29,7 +29,7 @@ export async function register(req, res) {
         return res.status(201).json({
             status: 'SUCCESS',
             token,
-            newUser: registeredUser
+            user: registeredUser
         });
     } catch (err) {
         if (err.statusCode) {
@@ -41,5 +41,5 @@ export async function register(req, res) {
 }
 
 export async function me(req, res) {
-    return res.json({ token: req.decoded });
+    return res.json({ user: req.decoded });
 }

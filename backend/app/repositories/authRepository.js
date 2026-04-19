@@ -5,7 +5,7 @@ export async function fetchUserByUsername(username) {
     try {
         conn = await dbPool.getConnection();
         let [rows] = await conn.query('SELECT id, username, name, email, password, salt, role FROM users WHERE username = ?', [username]);
-        return rows;
+        return rows[0] ?? null;
     } catch (err) {
         console.error('Error while fetching user by username from database:', err);
         throw err;
@@ -18,9 +18,9 @@ export async function registerUser(newUser) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        let [result] = await dbPool.query('INSERT INTO users SET ?', [newUser]);
-        let [added] = await dbPool.query('SELECT id, username, name, email, role FROM users WHERE id = ?', [result.insertId]);
-        return added;
+        let [result] = await conn.query('INSERT INTO users SET ?', [newUser]);
+        let [added] = await conn.query('SELECT id, username, name, email, role FROM users WHERE id = ?', [result.insertId]);
+        return added[0] ?? null;
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') {
             console.error('User already exists:', err);

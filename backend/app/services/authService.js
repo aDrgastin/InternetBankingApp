@@ -1,5 +1,5 @@
 import * as authRepository from '../repositories/authRepository.js'
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import jwt from 'jsonwebtoken'
 import config from '../../config.js';
 
@@ -36,7 +36,7 @@ export async function login(username, password) {
         role: user.role
     }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
 
-    return { token, user }; // make sure to return user DTO
+    return { token, user }; // SECURITY ISSUE! Make sure to return user DTO!
 }
 
 export async function register(newUser) {
