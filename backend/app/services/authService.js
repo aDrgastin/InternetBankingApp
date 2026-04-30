@@ -18,10 +18,8 @@ export async function login(username, password) {
         throw err;
     }
 
-    let hash = crypto.pbkdf2Sync(password, user.salt, 100000, 64, 'sha512');
-    //console.log('Hash: ', hash.toString('hex'));
-    let match = hash.toString('hex') === user.password;
-    if (!match) {
+    let hash = crypto.pbkdf2Sync(password, user.salt, 100000, 64, 'sha512').toString('hex');
+    if (!(hash === user.password)) {
         console.error('Wrong password');
         const err = new Error('WRONG_PASSWORD');
         err.statusCode = 401;
@@ -31,20 +29,32 @@ export async function login(username, password) {
     const token = jwt.sign({
         id: user.id,
         username: user.username,
-        name: user.name,
+        firstName: user.first_name,
+        lastName: user.last_name,
         email: user.email,
         role: user.role
-    }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
+    }, config.jwtSecret, { expiresIn: Number(config.jwtExpiresIn) });
+    const userDTO = {
+        id: user.id,
+        pin: user.pin,
+        username: user.username,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        role: user.role
+    };
 
-    return { token, user }; // SECURITY ISSUE! Make sure to return user DTO!
+    return { token, userDTO };
 }
 
 export async function register(newUser) {
     const salt = crypto.randomBytes(16).toString('hex');
     const hash = crypto.pbkdf2Sync(newUser.password, salt, 100000, 64, 'sha512').toString('hex');
     const insertUser = {
+        pin: newUser.pin,
         username: newUser.username,
-        name: newUser.name,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         email: newUser.email,
         salt,
         password: hash
@@ -55,7 +65,8 @@ export async function register(newUser) {
         const token = jwt.sign({
             id: registeredUser.id,
             username: registeredUser.username,
-            name: registeredUser.name,
+            firstName: registeredUser.firstName,
+            lastName: registeredUser.lastName,
             email: registeredUser.email,
             role: registeredUser.role
         }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });

@@ -11,7 +11,7 @@ try {
         port: process.env.DB_PORT || 3306,
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASS || '',
-        database: process.env.DB_NAME || 'bank',
+        database: process.env.DB_NAME || 'internet_banking',
         connectionLimit: 10
     });
 } catch (err) {

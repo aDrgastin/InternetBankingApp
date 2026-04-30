@@ -6,7 +6,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import config from './config.js'
 import authRoutes from './app/routes/authRoutes.js'
-import transactionRoutes from './app/routes/transactionRoutes.js'
+//import transactionRoutes from './app/routes/transactionRoutes.js'
 import accountRoutes from './app/routes/accountRoutes.js'
 
 const app = express();
@@ -30,7 +30,7 @@ mainRouter.route('/').get((req, res) => {
 app.use('/', mainRouter);
 
 app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
+//app.use('/api/transactions', transactionRoutes);
 app.use('/api/accounts', accountRoutes);
 
 app.use((req, res) => {

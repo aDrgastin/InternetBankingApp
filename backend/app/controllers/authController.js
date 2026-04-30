@@ -7,8 +7,8 @@ export async function login(req, res) {
     }
 
     try {
-        const { token, user } = await authService.login(username, password);
-        return res.json({ status: 'SUCCESS', token, user });
+        const { token, userDTO } = await authService.login(username, password);
+        return res.json({ status: 'SUCCESS', token, user: userDTO });
     } catch (err) {
         if (err.statusCode) {
             return res.status(err.statusCode).json({ status: err.message });
@@ -20,7 +20,7 @@ export async function login(req, res) {
 
 export async function register(req, res) {
     const newUser = req.body ?? {};
-    if (!newUser?.username || !newUser?.password || !newUser?.name) {
+    if (!newUser?.pin || !newUser?.username || !newUser?.password || !newUser?.firstName || !newUser?.lastName || !newUser?.email) {
         return res.status(400).json({ status: 'MISSING_CREDENTIALS' });
     }
 
