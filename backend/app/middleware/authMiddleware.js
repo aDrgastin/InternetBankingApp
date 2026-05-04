@@ -14,15 +14,16 @@ export function verifyToken(req, res, next) {
         return res.status(401).json({ status: 'NO_TOKEN' });
     }
     const token = authHeader.split(' ')[1];
-    console.log('Token:', token);
 
     jwt.verify(token, config.jwtSecret, (err, decoded) => {
         if (err) {
             console.error('Error while validating token:', err);
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({ status: 'TOKEN_EXPIRED' });
+            }
             return res.status(403).json({ status: 'INVALID_TOKEN' });
         }
         req.decoded = decoded;
-        console.log('Decoded JWT:', decoded);
         next();
     });
 }
