@@ -27,3 +27,21 @@ export function verifyToken(req, res, next) {
         next();
     });
 }
+
+/**
+ * Validates whether the given JWT has one of the given user roles  
+ * Has be called after verifyToken, otherwise returns status 401
+ * @param  {...string} allowedRoles multiple string params representing user roles allowed to pass the middleware
+ * @returns nothing if token exists and has any given role, status 401 if there's no token and status 403 if token doesn't have any given role
+ */
+export function requireRole(...allowedRoles) {
+    return (req, res, next) => {
+        if (!req.decoded) {
+            return res.status(401).json({ status: 'NO_TOKEN' });
+        }
+        if (!allowedRoles.includes(req.decoded.role)) {
+            return res.status(403).json({ status: 'FORBIDDEN' });
+        }
+        next();
+    };
+}
