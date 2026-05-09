@@ -41,5 +41,14 @@ export async function register(req, res) {
 }
 
 export async function me(req, res) {
-    return res.json({ user: req.decoded });
+    try {
+        const user = await authService.getMe(req.decoded.id);
+        return res.json({ user });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
+        console.error('Unknown error while auto logging:', err);
+        return res.status(500).end();
+    }
 }

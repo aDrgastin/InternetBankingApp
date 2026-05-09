@@ -29,19 +29,17 @@ export async function login(username, password) {
     const token = jwt.sign({
         id: user.id,
         username: user.username,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        email: user.email,
-        role: user.role
+        role: user.role,
     }, config.jwtSecret, { expiresIn: Number(config.jwtExpiresIn) });
     const userDTO = {
         id: user.id,
         pin: user.pin,
         username: user.username,
-        firstName: user.first_name,
-        lastName: user.last_name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
-        role: user.role
+        role: user.role,
+        createdAt: user.createdAt
     };
 
     return { token, userDTO };
@@ -65,11 +63,8 @@ export async function register(newUser) {
         const token = jwt.sign({
             id: registeredUser.id,
             username: registeredUser.username,
-            firstName: registeredUser.firstName,
-            lastName: registeredUser.lastName,
-            email: registeredUser.email,
             role: registeredUser.role
-        }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
+        }, config.jwtSecret, { expiresIn: Number(config.jwtExpiresIn) });
 
         return { token, registeredUser };
     } catch (err) {
@@ -80,4 +75,14 @@ export async function register(newUser) {
         }
         throw err;
     }
+}
+
+export async function getMe(userId) {
+    const user = await authRepository.fetchUserById(userId);
+    if (!user) {
+        const err = new Error('USER_NOT_FOUND');
+        err.statusCode = 404;
+        throw err;
+    }
+    return user;
 }

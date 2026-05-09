@@ -1,10 +1,26 @@
 import { dbPool } from '../../config.js'
 
+export async function fetchUserById(id) {
+    let conn;
+    try {
+        conn = await dbPool.getConnection();
+        const [rows] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role, created_at AS createdAt
+            FROM User
+            WHERE id = ?`, [id]);
+            return rows[0] ?? null;
+    } catch (err) {
+        console.error('Error while fetching user by id from database:', err);
+        throw err;
+    } finally {
+        conn?.release();
+    }
+}
+
 export async function fetchUserByUsername(username) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        let [rows] = await conn.execute(`SELECT id, pin, username, first_name, last_name, email, password, salt, role
+        let [rows] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, password, salt, role, created_at AS createdAt
             FROM User
             WHERE username = ?`, [username]);
         return rows[0] ?? null;
@@ -22,7 +38,7 @@ export async function registerUser(newUser) {
         conn = await dbPool.getConnection();
         let [result] = await conn.execute(`INSERT INTO User (pin, username, first_name, last_name, email, salt, password)
             VALUES (?, ?, ?, ?, ?, ?, ?)`, [newUser.pin, newUser.username, newUser.firstName, newUser.lastName, newUser.email, newUser.salt, newUser.password]);
-        let [added] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role
+        let [added] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role, created_at AS createdAt
             FROM User
             WHERE id = ?`, [result.insertId]);
         return added[0] ?? null;
