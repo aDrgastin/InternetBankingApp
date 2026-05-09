@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { catchError, EMPTY, tap, throwError } from 'rxjs';
+import { catchError, EMPTY, map, tap, throwError } from 'rxjs';
 import { User } from '../models/user';
 import { AuthResponse } from '../models/authResponse';
 import { Router } from '@angular/router';
@@ -20,6 +20,13 @@ export class AuthService {
 
     login(username: string, password: string) {
         return this.http.post<AuthResponse>(`${this.API_ENDPOINT}/login`, { username, password }).pipe(
+            map(res => {
+                if (!res.user) throw new Error('INVALID_RESPONSE');
+                return {
+                    token: res.token,
+                    user: { ...res.user, createdAt: new Date(res.user.createdAt) }
+                };
+            }),
             tap(res => {
                 localStorage.setItem('token', res.token);
                 this.currentUser.set(res.user);
@@ -51,9 +58,13 @@ export class AuthService {
     autoLogin() {
         if (!this.getToken()) return EMPTY;
         return this.http.get<{ user: User }>(`${this.API_ENDPOINT}/me`).pipe(
-            tap(res => {
-                this.currentUser.set(res.user);
-                console.log('Auto-logged in as', res.user.username);
+            map(res => {
+                if (!res) throw new Error('INVALID_RESPONSE');
+                return { ...res.user, createdAt: new Date(res.user.createdAt) };
+            }),
+            tap((user: User) => {
+                this.currentUser.set(user);
+                console.log('Auto-logged in as', user.username);
             }), catchError((err: HttpErrorResponse) => {
                 const status = err.error?.status;
                 if (status === 'NO_TOKEN') {
@@ -62,6 +73,8 @@ export class AuthService {
                     console.error('Token expired:', err);
                 } else if (status === 'INVALID_TOKEN') {
                     console.error('Invalid token:', err);
+                } else if (status === 'USER_NOT_FOUND') {
+                    console.error('User not found:', err);
                 }
                 localStorage.removeItem('token');
                 this.router.navigate(['/login']);
@@ -72,6 +85,13 @@ export class AuthService {
 
     register(pin: string, username: string, password: string, firstName: string, lastName: string, email: string) {
         return this.http.post<AuthResponse>(`${this.API_ENDPOINT}/register`, { pin, username, password, firstName, lastName, email }).pipe(
+            map(res => {
+                if (!res.user) throw new Error('INVALID_RESPONSE');
+                return {
+                    token: res.token,
+                    user: { ...res.user, createdAt: new Date(res.user.createdAt) }
+                };
+            }),
             tap(res => {
                 localStorage.setItem('token', res.token);
                 this.currentUser.set(res.user);
