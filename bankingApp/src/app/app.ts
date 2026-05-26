@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Sidebar } from './shared/components/sidebar/sidebar';
 
@@ -11,15 +11,32 @@ import { Sidebar } from './shared/components/sidebar/sidebar';
 export class App {
   protected readonly title = signal('bankingApp');
   private readonly MOBILE_BREAKPOINT = 767;
-  isSidebarCollapsed = signal(window.innerWidth < this.MOBILE_BREAKPOINT);
+  private readonly SIDEBAR_KEY = 'sidebarCollapsed';
+  isSidebarCollapsed = signal(this.getInitialSidebarState());
 
   onSidebarToggle() {
-    this.isSidebarCollapsed.update(v => !v);
-  }
-
-  collapseSidebar() {
-    if (window.innerWidth < this.MOBILE_BREAKPOINT) {
-      this.isSidebarCollapsed.set(true);
+    this.isSidebarCollapsed.update(v => {
+        localStorage.setItem(this.SIDEBAR_KEY, String(!v));
+        return !v;
+        });
     }
-  }
+
+    collapseSidebar() {
+        if (window.innerWidth < this.MOBILE_BREAKPOINT) {
+            this.isSidebarCollapsed.set(true);
+        }
+    }
+
+    @HostListener('window:resize')
+    protected onResize() {
+        if (window.innerWidth < this.MOBILE_BREAKPOINT) {
+            this.isSidebarCollapsed.set(true);
+        }
+    }
+
+    private getInitialSidebarState() {
+        if (window.innerWidth < this.MOBILE_BREAKPOINT) return true;
+        const saved = localStorage.getItem(this.SIDEBAR_KEY);
+        return saved !== null ? saved === 'true' : false;
+    }
 }
