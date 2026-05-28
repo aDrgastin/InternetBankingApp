@@ -46,7 +46,7 @@ export async function createAccount(userId, type) {
             dupErr.statusCode = 409;
             throw dupErr;
         } else if (err.code === 'ER_WARN_DATA_TRUNCATED') {
-            const dupErr = new Error('UNKNOWN_TYPE', { cause: err });
+            const dupErr = new Error('UNKNOWN_ENUM', { cause: err });
             dupErr.statusCode = 400;
             throw dupErr;
         }

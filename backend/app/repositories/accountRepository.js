@@ -22,7 +22,7 @@ export async function getAccountById(accountId) {
         conn = await dbPool.getConnection();
         let [result] = await conn.execute(`SELECT id, iban, balance, status, type, createdAt, userId
             FROM vw_account_details
-            WHERE accountId = ?`, [accountId]);
+            WHERE id = ?`, [accountId]);
         return result[0] ?? null;
     } catch (err) {
         console.error('Error while fetching account by id from database:', err);
@@ -58,14 +58,14 @@ export async function createAccount(iban, userId, type) {
             VALUES (?, ?)`, [userId, insert.insertId]);
         let [created] = await conn.execute(`SELECT id, iban, balance, status, type, createdAt, userId
             FROM vw_account_details
-            WHERE accountId = ?`, [insert.insertId]);
+            WHERE id = ?`, [insert.insertId]);
         return created[0];
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') {
             console.error('Account with the given iban already exists:', err);
             throw err;
         } else if (err.code === 'ER_WARN_DATA_TRUNCATED') {
-            console.error('Unknown account type value:', err);
+            console.error('Unknown account type enum value:', err);
             throw err;
         }
         console.error('Error while adding a new account to database:', err);

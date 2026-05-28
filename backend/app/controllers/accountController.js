@@ -13,11 +13,10 @@ export async function getMyAccounts(req, res) {
 
 export async function getAccountsByUserId(req, res) {
     const userId = req.params.userId;
-    if (!userId) {
-        return res.status(400).json({ status: 'MISSING_ID' });
-    }
     if (req.decoded.id != userId && req.decoded.role === 'USER') {
         return res.status(403).json({ status: 'FORBIDDEN' });
+    if (!(/^\d+$/).test(userId)) {
+        return res.status(400).json({ status: 'INVALID_ID' });
     }
 
     try {
@@ -31,8 +30,8 @@ export async function getAccountsByUserId(req, res) {
 
 export async function getAccountById(req, res) {
     const accountId = req.params.accountId;
-    if (!accountId) {
-        return res.status(400).json({ status: 'MISSING_ID' });
+    if (!(/^\d+$/).test(accountId)) {
+        return res.status(400).json({ status: 'INVALID_ID' });
     }
 
     try {
@@ -49,9 +48,6 @@ export async function getAccountById(req, res) {
 
 export async function getAccountByIban(req, res) {
     const iban = req.params.iban;
-    if (!iban) {
-        return res.status(400).json({ 'status': 'MISSING_IBAN' });
-    }
 
     try {
         const account = await accountService.getAccountByIban(iban, req.decoded.id, req.decoded.role);
@@ -103,8 +99,8 @@ export async function transferFunds(req, res) {
 
 export async function updateAccountStatus(req, res) {
     const accountId = req.params.accountId;
-    if (!accountId) {
-        return res.status(400).json({ 'status': 'MISSING_ID' });
+    if (!(/^\d+$/).test(accountId)) {
+        return res.status(400).json({ status: 'INVALID_ID' });
     }
     const { status } = req.body;
     if (!status) {
