@@ -13,8 +13,6 @@ export async function getMyAccounts(req, res) {
 
 export async function getAccountsByUserId(req, res) {
     const userId = req.params.userId;
-    if (req.decoded.id != userId && req.decoded.role === 'USER') {
-        return res.status(403).json({ status: 'FORBIDDEN' });
     if (!(/^\d+$/).test(userId)) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
