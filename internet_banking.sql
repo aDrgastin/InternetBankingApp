@@ -82,18 +82,18 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Transaction` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `tx_ref` CHAR(36) NOT NULL,
+  `reference` CHAR(36) NOT NULL,
   `type_id` TINYINT NOT NULL,
   `from_account_id` INT NULL,
   `from_iban` CHAR(21) NULL,
   `to_account_id` INT NULL,
-  `to_iban` CHAR(21) NOT NULL,
+  `to_iban` CHAR(21) NULL,
   `amount` DECIMAL(12,2) NOT NULL,
   `status` ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'COMPLETED',
   `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` VARCHAR(255) NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `tx_ref_UNIQUE` (`tx_ref` ASC) VISIBLE,
+  UNIQUE INDEX `reference_UNIQUE` (`reference` ASC) VISIBLE,
   INDEX `fk_transactions_accounts1_idx` (`from_account_id` ASC) VISIBLE,
   INDEX `fk_transactions_accounts2_idx` (`to_account_id` ASC) VISIBLE,
   INDEX `fk_transactions_transactionType1_idx` (`type_id` ASC) VISIBLE,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `vw_account_details` (`id` INT, `iban` INT, `balance`
 -- -----------------------------------------------------
 -- Placeholder table for view `vw_transaction_details`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vw_transaction_details` (`id` INT, `txRef` INT, `type` INT, `fromIban` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
+CREATE TABLE IF NOT EXISTS `vw_transaction_details` (`id` INT, `reference` INT, `type` INT, `fromIban` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
 
 -- -----------------------------------------------------
 -- Placeholder table for view `vw_card_details`
@@ -196,7 +196,12 @@ CREATE TABLE IF NOT EXISTS `vw_card_details` (`id` INT, `accountId` INT, `iban` 
 -- -----------------------------------------------------
 -- Placeholder table for view `vw_user_transactions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vw_user_transactions` (`userId` INT, `id` INT, `txRef` INT, `type` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
+CREATE TABLE IF NOT EXISTS `vw_user_transactions` (`userId` INT, `id` INT, `reference` INT, `type` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
+
+-- -----------------------------------------------------
+-- Placeholder table for view `vw_account_transactions`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vw_account_transactions` (`id` INT, `reference` INT, `TYPE` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `TIMESTAMP` INT, `DESCRIPTION` INT);
 
 -- -----------------------------------------------------
 -- procedure sp_transfer_funds
@@ -233,10 +238,114 @@ BEGIN
 	UPDATE Account SET balance = balance - amount WHERE id = from_acc_id;
 	UPDATE Account SET balance = balance + amount WHERE id = to_acc_id;
 	
-	INSERT INTO Transaction (tx_ref, type_id, from_account_id, to_account_id, from_iban, to_iban, status, amount, description)
+	INSERT INTO Transaction (reference, type_id, from_account_id, to_account_id, from_iban, to_iban, status, amount, description)
 		VALUES (UUID(), (SELECT id FROM TransactionType WHERE name = 'TRANSFER'), from_acc_id, to_acc_id, (SELECT iban FROM Account WHERE id = from_acc_id), (SELECT iban FROM Account WHERE id = to_acc_id), 'COMPLETED', amount, description);
 	COMMIT;
 	-- SET AUTOCOMMIT = 1;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure sp_pos_payout
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `internet_banking`$$
+CREATE PROCEDURE `sp_pos_payout` (IN from_acc_id INT, IN to_acc_id INT, IN amount DECIMAL(12,2), IN description VARCHAR(255))
+BEGIN
+	DECLARE v_from_status, v_to_status CHAR(10);
+    DECLARE v_balance DECIMAL(12,2);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		ROLLBACK;
+        RESIGNAL;
+    END;
+    
+    START TRANSACTION;
+    SELECT balance, status INTO v_balance, v_from_status FROM Account WHERE id = from_acc_id FOR UPDATE;
+    SELECT status INTO v_to_status FROM Account WHERE id = to_acc_id FOR UPDATE;
+    
+    IF v_from_status = 'CLOSED' THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SOURCE_ACCOUNT_CLOSED';
+	END IF;
+    IF v_to_status = 'CLOSED' THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'DESTINATION_ACCOUNT_CLOSED';
+	END IF;
+    IF v_balance < amount THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INSUFFICIENT_FUNDS';
+	END IF;
+    
+    UPDATE Account SET balance = balance - amount WHERE id = from_acc_id;
+    UPDATE Account SET balance = balance + amount WHERE id = to_acc_id;
+    INSERT INTO Transaction (reference, type_id, from_account_id, from_iban, to_account_id, to_iban, amount, status, description)
+		VALUES (UUID(), (SELECT id FROM TransactionType WHERE name = 'POS'),
+			from_acc_id, (SELECT iban FROM Account WHERE id = from_acc_id),
+            to_acc_id, (SELECT iban FROM Account WHERE id = to_acc_id),
+            amount, 'COMPLETED', description);
+    COMMIT;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure sp_withdraw_funds
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `internet_banking`$$
+CREATE PROCEDURE `sp_withdraw_funds` (IN acc_id INT, IN amount DECIMAL(12,2), IN description VARCHAR(255))
+BEGIN
+	DECLARE v_balance DECIMAL(12,2);
+    DECLARE v_status CHAR(10);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		ROLLBACK;
+        RESIGNAL;
+	END;
+    
+    START TRANSACTION;
+    SELECT balance, status INTO v_balance, v_status FROM Account WHERE id = acc_id FOR UPDATE;
+    IF v_status = 'CLOSED' THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ACCOUNT_CLOSED';
+    END IF;
+    IF v_balance < amount THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INSUFFICIENT_FUNDS';
+    END IF;
+    
+    UPDATE Account SET balance = balance - amount WHERE id = acc_id;
+    INSERT INTO Transaction(reference, type_id, from_account_id, from_iban, amount, status, description)
+		VALUES (UUID(), (SELECT id FROM TransactionType WHERE name = 'WITHDRAWAL'), acc_id, (SELECT iban FROM Account WHERE id = acc_id), amount, 'COMPLETED', description);
+    COMMIT;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure sp_deposit_funds
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `internet_banking`$$
+CREATE PROCEDURE `sp_deposit_funds` (IN acc_id INT, IN amount DECIMAL(12,2), IN description VARCHAR(255))
+BEGIN
+    DECLARE v_status CHAR(10);
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		ROLLBACK;
+        RESIGNAL;
+	END;
+    
+    START TRANSACTION;
+    SELECT status INTO v_status FROM Account WHERE id = acc_id FOR UPDATE;
+    IF v_status = 'CLOSED' THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ACCOUNT_CLOSED';
+    END IF;
+    
+    UPDATE Account SET balance = balance + amount WHERE id = acc_id;
+    INSERT INTO Transaction(reference, type_id, to_account_id, to_iban, amount, status, description)
+		VALUES (UUID(), (SELECT id FROM TransactionType WHERE name = 'DEPOSIT'), acc_id, (SELECT iban FROM Account WHERE id = acc_id), amount, 'COMPLETED', description);
+    COMMIT;
 END$$
 
 DELIMITER ;
@@ -259,7 +368,7 @@ CREATE OR REPLACE VIEW `vw_account_details` AS
 DROP TABLE IF EXISTS `vw_transaction_details`;
 USE `internet_banking`;
 CREATE OR REPLACE VIEW `vw_transaction_details` AS
-	SELECT t.id, tx_ref AS txRef, tt.name AS type, from_iban AS fromIban, to_iban AS toIban, amount, status, timestamp, description
+	SELECT t.id, reference, tt.name AS type, from_iban AS fromIban, to_iban AS toIban, amount, status, timestamp, description
 	FROM Transaction t JOIN TransactionType tt ON t.type_id = tt.id;
 	-- WHERE from_account_id = ? OR from_iban = ?;
 
@@ -280,11 +389,22 @@ CREATE  OR REPLACE VIEW `vw_card_details` AS
 DROP TABLE IF EXISTS `vw_user_transactions`;
 USE `internet_banking`;
 CREATE  OR REPLACE VIEW `vw_user_transactions` AS
-	SELECT ua.user_id AS userId, t.id, tx_ref AS txRef, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
+	SELECT ua.user_id AS userId, t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
 	FROM Transaction t JOIN Account a ON t.from_account_id = a.id OR t.to_account_id = a.id
     JOIN UserAccount ua ON a.id = ua.account_id
     JOIN TransactionType tt ON t.type_id = tt.id;
     -- WHERE userId = ? ORDER BY timestamp DESC;
+
+-- -----------------------------------------------------
+-- View `vw_account_transactions`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `vw_account_transactions`;
+USE `internet_banking`;
+CREATE  OR REPLACE VIEW `vw_account_transactions` AS
+	SELECT t.id, reference, tt.name AS TYPE, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, TIMESTAMP, DESCRIPTION
+	FROM TRANSACTION t JOIN TransactionType tt ON t.type_id = tt.id;
+    -- WHERE t.from_account_id = 2 OR t.to_account_id = 2
+    -- ORDER BY TIMESTAMP DESC;
 USE `internet_banking`;
 
 DELIMITER $$
@@ -321,7 +441,7 @@ USE `internet_banking`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `internet_banking`.`trg_transaction_insert` AFTER INSERT ON `Transaction` FOR EACH ROW
 BEGIN
 	INSERT INTO AuditLog(table_name, action, record_id, new_data) VALUES('Transaction', 'INSERT', NEW.id, JSON_OBJECT(
-		'txRef', NEW.tx_ref,
+		'reference', NEW.reference,
         'amount', NEW.amount,
         'status', NEW.status,
         'fromIban', NEW.from_iban,
@@ -345,6 +465,11 @@ GRANT SELECT ON TABLE `internet_banking`.`TransactionType` TO 'banking_app'@'loc
 GRANT UPDATE, SELECT, INSERT ON TABLE `internet_banking`.`User` TO 'banking_app'@'localhost';
 GRANT SELECT ON TABLE `internet_banking`.`UserAccount` TO 'banking_app'@'localhost';
 GRANT SELECT ON TABLE `internet_banking`.`vw_card_details` TO 'banking_app'@'localhost';
+GRANT SELECT ON TABLE `internet_banking`.`vw_user_transactions` TO 'banking_app'@'localhost';
+GRANT EXECUTE ON procedure `internet_banking`.`sp_deposit_funds` TO 'banking_app'@'localhost';
+GRANT EXECUTE ON procedure `internet_banking`.`sp_withdraw_funds` TO 'banking_app'@'localhost';
+GRANT EXECUTE ON procedure `internet_banking`.`sp_pos_payout` TO 'banking_app'@'localhost';
+GRANT SELECT ON TABLE `internet_banking`.`vw_account_transactions` TO 'banking_app'@'localhost';
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
@@ -394,16 +519,6 @@ INSERT INTO `TransactionType` (`id`, `name`) VALUES (DEFAULT, 'WITHDRAWAL');
 INSERT INTO `TransactionType` (`id`, `name`) VALUES (DEFAULT, 'TRANSFER');
 INSERT INTO `TransactionType` (`id`, `name`) VALUES (DEFAULT, 'POS');
 INSERT INTO `TransactionType` (`id`, `name`) VALUES (DEFAULT, 'FEE');
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `Transaction`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `internet_banking`;
-INSERT INTO `Transaction` (`id`, `tx_ref`, `type_id`, `from_account_id`, `from_iban`, `to_account_id`, `to_iban`, `amount`, `status`, `timestamp`, `description`) VALUES (DEFAULT, '5c1dfa0f-47fc-11f1-a797-309c23e55570', 3, 1, 'HR1234567890123456789', 2, 'HR1234567890123456790', 250, 'COMPLETED', DEFAULT, 'Transfer from HR1234567890123456789 to HR1234567890123456790 | Test transfer');
 
 COMMIT;
 

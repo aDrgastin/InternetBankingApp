@@ -75,21 +75,6 @@ export async function createAccount(iban, userId, type) {
     }
 }
 
-export async function transferFunds(fromAccId, toAccId, amount, description, userId) {
-    let conn;
-    try {
-        conn = await dbPool.getConnection();
-        await conn.execute('SET @session_user_id = ?', [userId]);
-        let [result] = await conn.execute(`CALL sp_transfer_funds(?, ?, ?, ?)`, [fromAccId, toAccId, amount, description]);
-        return result[0];
-    } catch (err) {
-        console.error('Error while transfering funds:', err);
-        throw err;
-    } finally {
-        conn?.release();
-    }
-}
-
 export async function updateAccountStatus(accountId, status, userId) {
     let conn;
     try {

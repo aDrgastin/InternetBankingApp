@@ -76,25 +76,6 @@ export async function createAccount(req, res) {
     }
 }
 
-export async function transferFunds(req, res) {
-    const { fromAccId, toAccId, amount, description } = req.body;
-    if (!fromAccId || !toAccId) {
-        return res.status(400).json({ status: 'MISSING_ID' });
-    }
-    if (!amount) return res.status(400).json({ status: 'MISSING_AMOUNT' });
-    
-    try {
-        const result = await accountService.transferFunds(fromAccId, toAccId, amount, description, req.decoded.id, req.decoded.role);
-        return res.json({ status: 'SUCCESS' });
-    } catch (err) {
-        if (err.statusCode) {
-            return res.status(err.statusCode).json({ status: err.message });
-        }
-        console.error('Unknown error while transfering funds:', err);
-        return res.status(500).end();
-    }
-}
-
 export async function updateAccountStatus(req, res) {
     const accountId = req.params.accountId;
     if (!(/^\d+$/).test(accountId)) {

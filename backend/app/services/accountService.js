@@ -54,44 +54,6 @@ export async function createAccount(userId, type) {
     }
 }
 
-export async function transferFunds(fromAccId, toAccId, amount, description, userId, userRole) {
-    try {
-        const [sourceAcc, destAcc] = await Promise.all([
-            accountRepository.getAccountById(fromAccId),
-            accountRepository.getAccountById(toAccId)
-        ]);
-        if (!sourceAcc || !destAcc) {
-            const err = new Error('ACCOUNT_NOT_FOUND');
-            err.statusCode = 404;
-            throw err;
-        }
-        if (userRole === 'USER' && sourceAcc.userId !== parseInt(userId)) {
-            const err = new Error('UNAUTHORIZED_ACCOUNT_ACCESS');
-            err.statusCode = 403;
-            throw err;
-        }
-        const generatedDesc = `Transfer from ${sourceAcc.iban} to ${destAcc.iban}`;
-        const fullDesc = description?.trim() ? `${generatedDesc} | ${description.trim()}` : generatedDesc;
-        return await accountRepository.transferFunds(fromAccId, toAccId, amount, fullDesc, userId);
-    } catch (err) {
-        if (err.statusCode) throw err;
-        if (err.sqlMessage === 'SOURCE_ACCOUNT_CLOSED') {
-            const e = new Error('SOURCE_ACCOUNT_CLOSED', { cause: err });
-            e.statusCode = 400;
-            throw e;
-        } else if (err.sqlMessage === 'DESTINATION_ACCOUNT_CLOSED') {
-            const e = new Error('DESTINATION_ACCOUNT_CLOSED', { cause: err });
-            e.statusCode = 400;
-            throw e;
-        } else if (err.sqlMessage === 'INSUFFICIENT_FUNDS') {
-            const e = new Error('INSUFFICIENT_FUNDS', { cause: err });
-            e.statusCode = 400;
-            throw e;
-        }
-        throw err;
-    }
-}
-
 export async function updateAccountStatus(accountId, status, userId) {
     try {
         return await accountRepository.updateAccountStatus(accountId, status, userId);
