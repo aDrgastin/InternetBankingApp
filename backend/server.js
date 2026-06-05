@@ -8,6 +8,7 @@ import config from './config.js'
 import authRoutes from './app/routes/authRoutes.js'
 import transactionRoutes from './app/routes/transactionRoutes.js'
 import accountRoutes from './app/routes/accountRoutes.js'
+import cardRoutes from './app/routes/cardRoutes.js'
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -33,6 +34,7 @@ app.use('/', mainRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/cards', cardRoutes);
 
 app.use((req, res) => {
     res.status(404).end('Page not found!');

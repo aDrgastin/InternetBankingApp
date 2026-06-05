@@ -189,19 +189,14 @@ CREATE TABLE IF NOT EXISTS `vw_account_details` (`id` INT, `iban` INT, `balance`
 CREATE TABLE IF NOT EXISTS `vw_transaction_details` (`id` INT, `reference` INT, `type` INT, `fromIban` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
 
 -- -----------------------------------------------------
--- Placeholder table for view `vw_card_details`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vw_card_details` (`id` INT, `accountId` INT, `iban` INT, `balance` INT, `accountStatus` INT, `accountType` INT, `accountCreatedAt` INT, `cardNumber` INT, `cardType` INT, `cardStatus` INT, `expiryDate` INT, `createdAt` INT);
-
--- -----------------------------------------------------
 -- Placeholder table for view `vw_user_transactions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `vw_user_transactions` (`userId` INT, `accountId` INT, `id` INT, `reference` INT, `type` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
 
 -- -----------------------------------------------------
--- Placeholder table for view `vw_account_transactions`
+-- Placeholder table for view `vw_user_cards`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vw_account_transactions` (`id` INT, `reference` INT, `TYPE` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `TIMESTAMP` INT, `DESCRIPTION` INT);
+CREATE TABLE IF NOT EXISTS `vw_user_cards` (`id` INT, `accountId` INT, `userId` INT, `iban` INT, `accountStatus` INT, `accountType` INT, `number` INT, `type` INT, `status` INT, `expiryDate` INT, `createdAt` INT);
 
 -- -----------------------------------------------------
 -- procedure sp_transfer_funds
@@ -373,17 +368,6 @@ CREATE OR REPLACE VIEW `vw_transaction_details` AS
 	-- WHERE from_account_id = ? OR from_iban = ?;
 
 -- -----------------------------------------------------
--- View `vw_card_details`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `vw_card_details`;
-USE `internet_banking`;
-CREATE  OR REPLACE VIEW `vw_card_details` AS
-	SELECT c.id, account_id AS accountId, a.iban, a.balance, a.status AS accountStatus, at.name AS accountType, a.created_at AS accountCreatedAt, card_number AS cardNumber, card_type AS cardType, c.status AS cardStatus, expiry_date AS expiryDate, c.created_at AS createdAt
-    FROM Card c JOIN Account a ON c.account_id = a.id
-    JOIN AccountType at ON a.type_id = at.id;
-    -- WHERE c.id = ?;
-
--- -----------------------------------------------------
 -- View `vw_user_transactions`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `vw_user_transactions`;
@@ -396,15 +380,20 @@ CREATE  OR REPLACE VIEW `vw_user_transactions` AS
     -- WHERE userId = ? ORDER BY timestamp DESC;
 
 -- -----------------------------------------------------
--- View `vw_account_transactions`
+-- View `vw_user_cards`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `vw_account_transactions`;
+DROP TABLE IF EXISTS `vw_user_cards`;
 USE `internet_banking`;
-CREATE  OR REPLACE VIEW `vw_account_transactions` AS
-	SELECT t.id, reference, tt.name AS TYPE, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, TIMESTAMP, DESCRIPTION
-	FROM TRANSACTION t JOIN TransactionType tt ON t.type_id = tt.id;
-    -- WHERE t.from_account_id = 2 OR t.to_account_id = 2
-    -- ORDER BY TIMESTAMP DESC;
+CREATE  OR REPLACE VIEW `vw_user_cards` AS
+	SELECT c.id, c.account_id AS accountId, ua.user_id AS userId, a.iban, a.status AS accountStatus, at.name AS accountType, card_number AS number, card_type AS type, 
+		CASE
+			WHEN c.expiry_date < NOW() THEN 'EXPIRED'
+            ELSE c.status
+		END AS status, expiry_date AS expiryDate, c.created_at AS createdAt
+    FROM Card c JOIN Account a ON c.account_id = a.id
+    JOIN UserAccount ua ON a.id = ua.account_id
+    JOIN AccountType at ON a.type_id = at.id;
+    -- WHERE ua.user_id = ?;
 USE `internet_banking`;
 
 DELIMITER $$
@@ -464,12 +453,11 @@ GRANT SELECT, INSERT ON TABLE `internet_banking`.`Transaction` TO 'banking_app'@
 GRANT SELECT ON TABLE `internet_banking`.`TransactionType` TO 'banking_app'@'localhost';
 GRANT UPDATE, SELECT, INSERT ON TABLE `internet_banking`.`User` TO 'banking_app'@'localhost';
 GRANT SELECT ON TABLE `internet_banking`.`UserAccount` TO 'banking_app'@'localhost';
-GRANT SELECT ON TABLE `internet_banking`.`vw_card_details` TO 'banking_app'@'localhost';
 GRANT SELECT ON TABLE `internet_banking`.`vw_user_transactions` TO 'banking_app'@'localhost';
 GRANT EXECUTE ON procedure `internet_banking`.`sp_deposit_funds` TO 'banking_app'@'localhost';
 GRANT EXECUTE ON procedure `internet_banking`.`sp_withdraw_funds` TO 'banking_app'@'localhost';
 GRANT EXECUTE ON procedure `internet_banking`.`sp_pos_payout` TO 'banking_app'@'localhost';
-GRANT SELECT ON TABLE `internet_banking`.`vw_account_transactions` TO 'banking_app'@'localhost';
+GRANT SELECT ON TABLE `internet_banking`.`vw_user_cards` TO 'banking_app'@'localhost';
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
