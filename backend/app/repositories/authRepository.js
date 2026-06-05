@@ -53,3 +53,27 @@ export async function registerUser(newUser) {
         conn?.release();
     }
 }
+
+export async function updateUser(id, updatedUser) {
+    let conn;
+    try {
+        conn = await dbPool.getConnection();
+        let [result] = await conn.execute(`UPDATE User
+            SET pin = ?, username = ?, first_name = ?, last_name = ?, email = ?
+            WHERE id = ?`, [updatedUser.pin, updatedUser.username, updatedUser.firstName, updatedUser.lastName, updatedUser.email, id]);
+        if (result.affectedRows === 0) return null;
+        let [updated] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role, created_at AS createdAt
+            FROM User
+            WHERE id = ?`, [id]);
+        return updated[0] ?? null;
+    } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            console.error('Duplicate pin:', err);
+            throw err;
+        }
+        console.error('Error while updating a user in the database:', err);
+        throw err;
+    } finally {
+        conn?.release();
+    }
+}

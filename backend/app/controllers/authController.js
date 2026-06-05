@@ -52,3 +52,25 @@ export async function me(req, res) {
         return res.status(500).end();
     }
 }
+
+export async function update(req, res) {
+    const id = req.params.id;
+    if (!(/^\d+$/).test(id)) {
+        return res.status(400).json({ status: 'INVALID_ID' });
+    }
+    const user = req.body ?? {};
+    if (!user?.pin || !user?.username || !user?.firstName || !user?.lastName || !user?.email) {
+        return res.status(400).json({ status: 'MISSING_DATA' });
+    }
+
+    try {
+        const updated = await authService.updateUser(id, user);
+        return res.json({ user: updated });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
+        console.error('Unknown error while updating a user:', err);
+        return res.status(500).end();
+    }
+}

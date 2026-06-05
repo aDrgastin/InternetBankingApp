@@ -86,3 +86,22 @@ export async function getMe(userId) {
     }
     return user;
 }
+
+export async function updateUser(id, updatedUser) {
+    try {
+        const updated = await authRepository.updateUser(id, updatedUser);
+        if (!updated) {
+            const err = new Error('USER_NOT_FOUND');
+            err.statusCode = 404;
+            throw err;
+        }
+        return updated;
+    } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            const dupErr = new Error('PIN_EXISTS', { cause: err });
+            dupErr.statusCode = 409;
+            throw dupErr;
+        }
+        throw err;
+    }
+}
