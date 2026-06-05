@@ -24,7 +24,7 @@ export class AuthService {
                 if (!res.user) throw new Error('INVALID_RESPONSE');
                 return {
                     token: res.token,
-                    user: { ...res.user, createdAt: new Date(res.user.createdAt) }
+                    user: this.mapUser(res.user)
                 };
             }),
             tap(res => {
@@ -60,7 +60,7 @@ export class AuthService {
         return this.http.get<{ user: User }>(`${this.API_ENDPOINT}/me`).pipe(
             map(res => {
                 if (!res) throw new Error('INVALID_RESPONSE');
-                return { ...res.user, createdAt: new Date(res.user.createdAt) };
+                return this.mapUser(res.user);
             }),
             tap((user: User) => {
                 this.currentUser.set(user);
@@ -89,7 +89,7 @@ export class AuthService {
                 if (!res.user) throw new Error('INVALID_RESPONSE');
                 return {
                     token: res.token,
-                    user: { ...res.user, createdAt: new Date(res.user.createdAt) }
+                    user: this.mapUser(res.user)
                 };
             }),
             tap(res => {
@@ -108,5 +108,39 @@ export class AuthService {
                 return throwError(() => new Error(message, { cause: err }));
             })
         );
+    }
+
+    updateUser(updatedUser: User) {
+        return this.http.put<{ user: User }>(`${this.API_ENDPOINT}/${updatedUser.id}`, { pin: updatedUser.pin, username: updatedUser.username, firstName: updatedUser.firstName, lastName: updatedUser.lastName, email: updatedUser.email }).pipe(
+            map(res => {
+                if (!res.user) throw new Error('INVALID_RESPONSE');
+                return this.mapUser(res.user);
+            }),
+            tap(user => {
+                this.currentUser.set(user);
+            }),
+            catchError((err: HttpErrorResponse) => {
+                const status = err.error?.status;
+                let message = 'An unexpected error occured';
+                if (status === 'USER_NOT_FOUND') {
+                    console.error('User not found:', err);
+                    message = 'User not found';
+                } else if (status === 'MISSING_DATA') {
+                    console.error('Missing data:', err);
+                    message = 'Please fill in all fields';
+                } else if (status === 'PIN_EXISTS') {
+                    console.error('Pin exists:', err);
+                    message = 'Pin is already used';
+                }
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
+    private mapUser(user: User): User {
+        return {
+            ...user,
+            createdAt: new Date(user.createdAt)
+        };
     }
 }

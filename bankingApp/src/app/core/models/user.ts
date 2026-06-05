@@ -1,6 +1,6 @@
 export interface User {
-    id?: number;
-    pin?: string;
+    id: number;
+    pin: string;
     username: string;
     firstName: string;
     lastName: string;
