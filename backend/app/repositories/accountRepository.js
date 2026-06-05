@@ -95,3 +95,17 @@ export async function updateAccountStatus(accountId, status, userId) {
         conn?.release();
     }
 }
+
+export async function getAccountTypes() {
+    let conn;
+    try {
+        conn = await dbPool.getConnection();
+        let [rows] = await conn.execute(`SELECT name FROM AccountType`);
+        return rows;
+    } catch (err) {
+        console.error('Error while fetching account types:', err);
+        throw err;
+    } finally {
+        conn?.release();
+    }
+}

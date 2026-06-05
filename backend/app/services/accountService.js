@@ -12,7 +12,7 @@ export async function getAccountById(accountId, requestingUserId, requestingUser
         err.statusCode = 404;
         throw err;
     }
-    if (requestingUserRole === 'USER' && account.userId !== requestingUserId) {
+    if (account.userId !== requestingUserId && requestingUserRole !== 'ADMIN' && requestingUserRole !== 'MOD') {
         const err = new Error('FORBIDDEN');
         err.statusCode = 403;
         throw err;
@@ -27,7 +27,7 @@ export async function getAccountByIban(iban, requestingUserId, requestingUserRol
         err.statusCode = 404;
         throw err;
     }
-    if (requestingUserRole === 'USER' && account.userId !== requestingUserId) {
+    if (account.userId !== requestingUserId && requestingUserRole !== 'ADMIN' && requestingUserRole !== 'MOD') {
         const err = new Error('FORBIDDEN');
         err.statusCode = 403;
         throw err;
@@ -36,18 +36,19 @@ export async function getAccountByIban(iban, requestingUserId, requestingUserRol
 }
 
 export async function createAccount(userId, type) {
-    let iban = 'HR1234567' + Math.floor(Math.random() * 1e10).toString().padStart(10, '0');
     try {
+        if (!(await accountRepository.getAccountTypes()).includes(type)) {
+            const e = new Error('UNKNOWN_ENUM');
+            e.statusCode = 400;
+            throw e;
+        }
+        let iban = 'HR1234567' + Math.floor(Math.random() * 1e10).toString().padStart(10, '0');
         const newAccount = await accountRepository.createAccount(iban, userId, type);
-        return newAccount; // RETURN DTO?????????
+        return newAccount;
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') {
             const dupErr = new Error('ACCOUNT_EXISTS', { cause: err });
             dupErr.statusCode = 409;
-            throw dupErr;
-        } else if (err.code === 'ER_WARN_DATA_TRUNCATED') {
-            const dupErr = new Error('UNKNOWN_ENUM', { cause: err });
-            dupErr.statusCode = 400;
             throw dupErr;
         }
         throw err;
