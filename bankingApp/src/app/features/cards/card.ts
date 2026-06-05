@@ -1,7 +1,7 @@
 export interface Card {
     id: number;
     accountId?: number;
-    cardNumber: number;
+    number: string;
     type: 'DEBIT' | 'CREDIT';
     status: 'ACTIVE' | 'BLOCKED' | 'EXPIRED';
     expiryDate: Date;

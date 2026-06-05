@@ -1,1 +1,300 @@
-<p>cards works!</p>
+<div class="cards-page">
+    <!-- Page Header -->
+    <div class="page-header d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h4 class="page-title mb-1">
+                <i class="fa-solid fa-credit-card me-2" style="color: #117eeb;"></i>My Cards
+            </h4>
+            <p class="page-subtitle mb-0">Manage your debit and credit cards</p>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(17,126,235,0.15); color: #117eeb;">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats().total }}</div>
+                    <div class="stat-label">Total Cards</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon status-active">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats().active }}</div>
+                    <div class="stat-label">Active</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon status-blocked">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats().blocked }}</div>
+                    <div class="stat-label">Blocked</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon status-expired">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats().expired }}</div>
+                    <div class="stat-label">Expired</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar d-flex flex-wrap gap-3 mb-4">
+        <!-- Type Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Type:</span>
+            <div class="btn-group btn-group-sm">
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="typeFilter() === 'ALL'"
+                    (click)="setTypeFilter('ALL')">All</button>
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="typeFilter() === 'DEBIT'"
+                    (click)="setTypeFilter('DEBIT')">
+                    <i class="fa-solid fa-wallet me-1"></i>Debit
+                </button>
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="typeFilter() === 'CREDIT'"
+                    (click)="setTypeFilter('CREDIT')">
+                    <i class="fa-solid fa-credit-card me-1"></i>Credit
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Status:</span>
+            <div class="btn-group btn-group-sm">
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="statusFilter() === 'ALL'"
+                    (click)="setStatusFilter('ALL')">All</button>
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="statusFilter() === 'ACTIVE'"
+                    (click)="setStatusFilter('ACTIVE')">Active</button>
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="statusFilter() === 'BLOCKED'"
+                    (click)="setStatusFilter('BLOCKED')">Blocked</button>
+                <button
+                    type="button"
+                    class="btn filter-btn"
+                    [class.active]="statusFilter() === 'EXPIRED'"
+                    (click)="setStatusFilter('EXPIRED')">Expired</button>
+            </div>
+        </div>
+
+        <div class="ms-auto align-self-center text-muted small">
+            {{ filteredCards().length }} card{{ filteredCards().length !== 1 ? 's' : '' }}
+        </div>
+    </div>
+
+    <!-- Cards Grid -->
+    @if (filteredCards().length === 0) {
+        <div class="empty-state text-center py-5">
+            <i class="fa-solid fa-credit-card" style="font-size: 3rem; color: #374151;"></i>
+            <p class="mt-3 text-muted">No cards match the selected filters.</p>
+        </div>
+    }
+
+    <div class="row g-4 mt-2">
+        @for (card of filteredCards(); track card.id) {
+            <div class="col-12 col-lg-6">
+                <!-- Visual Card -->
+                <div
+                    class="bank-card"
+                    [class.card-blocked]="card.status === 'BLOCKED'"
+                    [class.card-expired]="card.status === 'EXPIRED'"
+                    [class.card-selected]="selectedCard()?.id === card.id"
+                    (click)="selectCard(card)"
+                    role="button"
+                    [attr.aria-expanded]="selectedCard()?.id === card.id">
+
+                    <div class="card-inner">
+                        <!-- Card Top Row -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="bank-name">SecureBank</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="card-type-badge">
+                                    @if (card.type === 'DEBIT') {
+                                        <i class="fa-solid fa-wallet me-1"></i>DEBIT
+                                    } @else {
+                                        <i class="fa-solid fa-credit-card me-1"></i>CREDIT
+                                    }
+                                </span>
+                                <span
+                                    class="status-dot"
+                                    [class.dot-active]="card.status === 'ACTIVE'"
+                                    [class.dot-blocked]="card.status === 'BLOCKED'"
+                                    [class.dot-expired]="card.status === 'EXPIRED'"
+                                    [title]="card.status">
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Chip + Contactless -->
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <div class="chip-icon">
+                                <i class="fa-solid fa-sim-card"></i>
+                            </div>
+                            @if (card.status === 'ACTIVE') {
+                                <i class="fa-solid fa-wifi" style="color: rgba(255,255,255,0.5); font-size: 1.1rem;"></i>
+                            }
+                        </div>
+
+                        <!-- Card Number -->
+                        <div class="card-number mb-3">{{ maskCardNumber(card.number) }}</div>
+
+                        <!-- Card Footer -->
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <div class="card-meta-label">EXPIRES</div>
+                                <div
+                                    class="card-expiry"
+                                    [class.expiry-warning]="isExpiringSoon(card.expiryDate)"
+                                    [class.expiry-expired]="card.status === 'EXPIRED'">
+                                    {{ card.expiryDate | date:'M/yy' }}
+                                    @if (isExpiringSoon(card.expiryDate)) {
+                                        <i class="fa-solid fa-triangle-exclamation ms-1 small"></i>
+                                    }
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                @if (getAccount(card.accountId); as account) {
+                                    <div class="card-meta-label">ACCOUNT</div>
+                                    <div class="card-account-ref">{{ account.iban | slice:0:10 }}…</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Overlay for blocked/expired -->
+                    @if (card.status !== 'ACTIVE') {
+                        <div class="card-overlay">
+                            <i class="fa-solid" [class.fa-ban]="card.status === 'BLOCKED'" [class.fa-clock-rotate-left]="card.status === 'EXPIRED'">
+                            </i>
+                            <span>{{ card.status }}</span>
+                        </div>
+                    }
+                </div>
+
+                <!-- Expanded Detail Panel -->
+                @if (selectedCard()?.id === card.id) {
+                    <div class="detail-panel mt-2">
+                        <div class="detail-row">
+                            <span class="detail-key"><i class="fa-solidfa-hashtag me-1"></i>Card ID</span>
+                            <span class="detail-val">#{{ card.id }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key"><i class="fa-solid fa-calendar-plus me-1"></i>Issued</span>
+                            <span class="detail-val">{{ card.createdAt | date:'mediumDate' }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key"><i class="fa-solid fa-calendar-xmark me-1"></i>Expires</span>
+                            <span class="detail-val" [style.color]="card.status === 'EXPIRED' ? '#EF4444' : isExpiringSoon(card.expiryDate) ? '#F59E0B' : 'inherit'">
+                                {{ card.expiryDate | date:'mediumDate' }}
+                                @if (isExpiringSoon(card.expiryDate)) {
+                                    <span class="badge ms-1" style="background:#F59E0B; color:#000; font-size:0.65rem;">Soon</span>
+                                }
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key"><i class="fa-solid fa-circle me-1"></i>Status</span>
+                            <span class="detail-val fw-semibold" [style.color]="card.status === 'ACTIVE' ? '#10B981' : card.status === 'BLOCKED' ? '#EF4444' : '#9CA3AF'">
+                                {{ card.status }}
+                            </span>
+                        </div>
+                        @if (getAccount(card.accountId); as account) {
+                            <div class="detail-row">
+                                <span class="detail-key"><i class="fa-solid fa-building-columns me-1"></i>Linked Account</span>
+                                <span class="detail-val small" style="font-family: monospace;">{{ account.iban | iban }}</span>
+                            </div>
+                        }
+
+                        <!-- Actions -->
+                        <div class="detail-actions mt-3">
+                            @if (card.status === 'ACTIVE') {
+                                <button type="button" class="btn btn-sm action-btn-danger" (click)="$event.stopPropagation(); requestAction(card, 'BLOCK')">
+                                    <i class="fa-solid fa-ban me-1"></i>Block Card
+                                </button>
+                            }
+                            @if (card.status === 'BLOCKED') {
+                                <button type="button" class="btn btn-sm action-btn-primary" (click)="$event.stopPropagation(); requestAction(card, 'UNBLOCK')">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Unblock Card
+                                </button>
+                            }
+                            @if (card.status === 'EXPIRED') {
+                                <span class="text-muted small" style="color: white !important;"><i class="fa-solid fa-circle-info me-1"></i>Contact support to renew this card.</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+@if (showConfirmModal()) {
+    <div class="modal-backdrop-custom" (click)="cancelAction()"></div>
+    <div class="confirm-modal">
+        <div class="confirm-modal-header">
+            <i
+                class="fa-solid me-2"
+                [class.fa-ban]="pendingAction()?.action === 'BLOCK'"
+                [class.fa-circle-check]="pendingAction()?.action === 'UNBLOCK'"
+                [style.color]="pendingAction()?.action === 'BLOCK' ? '#EF4444' : '#10B981'">
+            </i>
+            {{ pendingAction()?.action === 'BLOCK' ? 'Block Card' : 'Unblock Card' }}
+        </div>
+        <p class="confirm-modal-body">
+            @if (pendingAction()?.action === 'BLOCK') {
+                Are you sure you want to <strong>block</strong> card ending in
+                <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
+                All transactions will be declined.
+            } @else {
+                Are you sure you want to <strong>unblock</strong> card ending in
+                <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
+                It will be active for transactions again.
+            }
+        </p>
+        <div class="confirm-modal-actions">
+            <button class="btn btn-sm btn-secondary" (click)="cancelAction()">Cancel</button>
+            <button
+                class="btn btn-sm"
+                [class.action-btn-danger]="pendingAction()?.action === 'BLOCK'"
+                [class.action-btn-primary]="pendingAction()?.action === 'UNBLOCK'"
+                (click)="confirmAction()">
+                Confirm
+            </button>
+        </div>
+    </div>
+}
