@@ -52,7 +52,7 @@ export async function transferFunds(req, res) {
     if (!amount) return res.status(400).json({ status: 'MISSING_AMOUNT' });
     
     try {
-        const result = await transactionService.transferFunds(fromAccId, toAccId, amount, description, req.decoded.id);
+        const result = await transactionService.transferFunds(fromAccId, toAccId, amount, description, req.decoded.id, req.decoded.role);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {

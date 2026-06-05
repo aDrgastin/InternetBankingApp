@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `vw_card_details` (`id` INT, `accountId` INT, `iban` 
 -- -----------------------------------------------------
 -- Placeholder table for view `vw_user_transactions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vw_user_transactions` (`userId` INT, `id` INT, `reference` INT, `type` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
+CREATE TABLE IF NOT EXISTS `vw_user_transactions` (`userId` INT, `accountId` INT, `id` INT, `reference` INT, `type` INT, `fromAccountId` INT, `fromIban` INT, `toAccountId` INT, `toIban` INT, `amount` INT, `status` INT, `timestamp` INT, `description` INT);
 
 -- -----------------------------------------------------
 -- Placeholder table for view `vw_account_transactions`
@@ -389,7 +389,7 @@ CREATE  OR REPLACE VIEW `vw_card_details` AS
 DROP TABLE IF EXISTS `vw_user_transactions`;
 USE `internet_banking`;
 CREATE  OR REPLACE VIEW `vw_user_transactions` AS
-	SELECT ua.user_id AS userId, t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
+	SELECT ua.user_id AS userId, ua.account_id AS accountId, t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
 	FROM Transaction t JOIN Account a ON t.from_account_id = a.id OR t.to_account_id = a.id
     JOIN UserAccount ua ON a.id = ua.account_id
     JOIN TransactionType tt ON t.type_id = tt.id;

@@ -15,7 +15,7 @@ export async function getTransactionsByUserId(userId) {
     return await transactionRepository.getAllByUserId(userId);
 }
 
-export async function transferFunds(fromAccId, toAccId, amount, description, userId) {
+export async function transferFunds(fromAccId, toAccId, amount, description, reqUserId, reqUserRole) {
     try {
         const [sourceAcc, destAcc] = await Promise.all([
             accountRepository.getAccountById(fromAccId),
@@ -26,9 +26,14 @@ export async function transferFunds(fromAccId, toAccId, amount, description, use
             err.statusCode = 404;
             throw err;
         }
+        if (sourceAcc.userId !== reqUserId && reqUserRole !== 'ADMIN' && reqUserRole !== 'MOD') {
+            const e = new Error('FORBIDDEN');
+            e.statusCode = 403;
+            throw e;
+        }
         const generatedDesc = `Transfer from ${sourceAcc.iban} to ${destAcc.iban}`;
         const fullDesc = description?.trim() ? `${generatedDesc} | ${description.trim()}` : generatedDesc;
-        return await transactionRepository.transferFunds(fromAccId, toAccId, amount, fullDesc, userId);
+        return await transactionRepository.transferFunds(fromAccId, toAccId, amount, fullDesc, reqUserId);
     } catch (err) {
         if (err.statusCode) throw err;
         if (err.sqlMessage === 'SOURCE_ACCOUNT_CLOSED') {

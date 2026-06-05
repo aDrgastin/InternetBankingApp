@@ -4,10 +4,10 @@ export async function getAllByAccountId(accountId) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        let [rows] = await conn.execute(`SELECT id, reference, type, fromAccountId, fromIban, toAccountId, toIban, amount, status, timestamp, description
-            FROM vw_account_transactions
-            WHERE fromAccountId = ? OR toAccountId = ?
-            ORDER BY TIMESTAMP DESC;`, [accountId, accountId]);
+        let [rows] = await conn.execute(`SELECT t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
+            FROM Transaction t JOIN TransactionType tt ON t.type_id = tt.id
+            WHERE t.fromAccountId = ? OR t.toAccountId = ?
+            ORDER BY timestamp DESC;`, [accountId, accountId]);
         return rows;
     } catch (err) {
         console.error('Error while fetching transactions by account id from database:', err);
@@ -21,10 +21,16 @@ export async function getAllByUserId(userId) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        let [rows] = await conn.execute(`SELECT DISTINCT id, reference, type, fromAccountId, fromIban, toAccountId, toIban, amount, status, timestamp, description
+        let [rows] = await conn.execute(`SELECT DISTINCT id, reference, type, fromAccountId, fromIban, toAccountId, toIban, amount, status, timestamp, description,
+                CASE
+                    WHEN type = 'DEPOSIT' THEN 'CREDIT'
+                    WHEN type IN ('WITHDRAWAL', 'FEE') THEN 'DEBIT'
+                    WHEN userId = ? AND fromAccountId = accountId THEN 'DEBIT'
+                    ELSE 'CREDIT'
+                END AS direction
             FROM vw_user_transactions
             WHERE userId = ?
-            ORDER BY timestamp DESC`, [userId]);
+            ORDER BY timestamp DESC`, [userId, userId]);
         return rows;
     } catch (err) {
         console.error('Error while fetching transactions by user id from database:', err);
