@@ -6,6 +6,7 @@ import { User } from '../models/user';
 import { AuthResponse } from '../models/authResponse';
 import { AccountService } from './account-service';
 import { Router } from '@angular/router';
+import { TransactionService } from './transaction-service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly API_ENDPOINT = `${environment.API_URL}/api/auth`;
     private readonly http = inject(HttpClient);
     private readonly accountService = inject(AccountService);
+    private readonly transactionService = inject(TransactionService);
     private readonly router = inject(Router);
 
     private readonly currentUser = signal<User | null>(null);
@@ -51,6 +53,7 @@ export class AuthService {
         localStorage.removeItem('token');
         this.currentUser.set(null);
         this.accountService.clearAccounts();
+        this.transactionService.clearTransactions();
         this.router.navigate(['/login']);
     }
 

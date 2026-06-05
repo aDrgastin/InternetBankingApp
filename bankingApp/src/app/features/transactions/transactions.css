@@ -1,3 +1,106 @@
 :host {
   display: block;
+  padding: 1.5rem;
+}
+
+/* Transaction icon styling */
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+/* Ensure proper table styling */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  border: none;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #F9FAFB !important;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.status-completed {
+  background-color: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.status-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.status-failed {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+/* Button group styling */
+.btn-group .btn {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-group .btn:active {
+  transform: translateY(0);
+}
+
+/* Badge styling */
+.badge {
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+/* Card styling */
+.card {
+  overflow: hidden;
+}
+
+/* Form select styling */
+.form-select:focus {
+  border-color: #117eeb;
+  box-shadow: 0 0 0 0.2rem rgba(17, 126, 235, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .btn-group .btn {
+    flex: 1 1 auto;
+    min-width: calc(33.333% - 2px);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
 }

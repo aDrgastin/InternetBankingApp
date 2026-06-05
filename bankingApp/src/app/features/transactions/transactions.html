@@ -1,1 +1,230 @@
-<p>transactions works!</p>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-0" style="color: #1a252f;">Transactions</h1>
+            <p class="text-muted small mb-0">View and filter your transaction history</p>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <!-- Account Filter -->
+        <div class="col-12 col-md-6 col-lg-4 mb-3 mb-lg-0">
+            <label class="form-label text-muted small fw-medium" for="account-filter">Filter by Account</label>
+            <select 
+                class="form-select form-select-sm"
+                id="account-filter"
+                (change)="onAccountFilterChange($event)"
+                style="border-color: #E5E7EB;">
+                <option value="">All Accounts</option>
+                @for (account of accounts(); track account.id) {
+                    <option [value]="account.id">{{ account.type | titlecase }} ({{ account.iban }})</option>
+                }
+            </select>
+        </div>
+
+        <!-- Transaction Type Filter -->
+        <div class="col-12 col-md-6 col-lg-8">
+            <label class="form-label text-muted small fw-medium">Filter by Type</label>
+            <div class="btn-group w-100" role="group">
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'ALL' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'ALL' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'ALL' ? '#fff' : ''"
+                    (click)="setTypeFilter('ALL')">
+                    All
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'DEPOSIT' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'DEPOSIT' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'DEPOSIT' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'DEPOSIT' ? '#fff' : ''"
+                    (click)="setTypeFilter('DEPOSIT')">
+                    Deposit
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'WITHDRAWAL' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'WITHDRAWAL' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'WITHDRAWAL' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'WITHDRAWAL' ? '#fff' : ''"
+                    (click)="setTypeFilter('WITHDRAWAL')">
+                    Withdrawal
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'TRANSFER' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'TRANSFER' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'TRANSFER' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'TRANSFER' ? '#fff' : ''"
+                    (click)="setTypeFilter('TRANSFER')">
+                    Transfer
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'POS' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'POS' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'POS' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'POS' ? '#fff' : ''"
+                    (click)="setTypeFilter('POS')">
+                    POS
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-sm"
+                    [class]="typeFilter() === 'FEE' ? 'btn-primary' : 'btn-outline-secondary'"
+                    [style.background-color]="typeFilter() === 'FEE' ? '#117eeb' : ''"
+                    [style.border-color]="typeFilter() === 'FEE' ? '#117eeb' : '#dee2e6'"
+                    [style.color]="typeFilter() === 'FEE' ? '#fff' : ''"
+                    (click)="setTypeFilter('FEE')">
+                    Fee
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Card -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm border-0" style="border: 1px solid #E5E7EB !important; border-radius: 8px;">
+                <div class="card-body p-0">
+                    <!-- Loading State -->
+                    @if (loading()) {
+                        <div class="text-center py-5">
+                            <div class="spinner-border mb-3" role="status" style="color: #117eeb;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted mb-0">Loading transactions...</p>
+                        </div>
+                    }
+                    <!-- Error State -->
+                    @if (error() && !loading()) {
+                        <div class="text-center py-5" style="color: #EF4444;">
+                            <i class="fa-solid fa-triangle-exclamation fs-1 mb-2 d-block"></i>
+                            <p class="mb-0">{{ error() }}</p>
+                        </div>
+                    }
+                    <!-- Empty State -->
+                    @if (!loading() && !error() && filteredTransactions().length === 0) {
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-receipt fs-1 mb-3 d-block" style="color: #E5E7EB;"></i>
+                            <p class="fs-5 fw-medium text-muted mb-1">No transactions found</p>
+                            <p class="small text-muted mb-0">Try changing your filters to see more results.</p>
+                        </div>
+                    }
+
+                    <!-- Transactions List -->
+                    @if (!loading() && !error() && filteredTransactions().length > 0) {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                                    <tr>
+                                        <th class="py-3 px-4 text-uppercase small fw-medium" style="color: #6B7280;">Transaction</th>
+                                        <th class="py-3 px-4 text-uppercase small fw-medium d-none d-md-table-cell" style="color: #6B7280;">Account</th>
+                                        <th class="py-3 px-4 text-uppercase small fw-medium d-none d-lg-table-cell" style="color: #6B7280;">Date & Time</th>
+                                        <th class="py-3 px-4 text-uppercase small fw-medium d-none d-lg-table-cell" style="color: #6B7280;">Status</th>
+                                        <th class="py-3 px-4 text-uppercase small fw-medium text-end" style="color: #6B7280;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (tx of filteredTransactions(); track tx.id) {
+                                        <tr style="border-bottom: 1px solid #F3F4F6;">
+                                            <td class="py-3 px-4">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div 
+                                                        class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                                        [style.width.px]="40"
+                                                        [style.height.px]="40"
+                                                        [style.background-color]="tx.direction === 'CREDIT' ? '#10b9811a' : '#ef44441a'"
+                                                        [style.color]="tx.direction === 'CREDIT' ? '#10B981' : '#EF4444'">
+                                                        <i class="fa-solid" [class]="getTransactionIconClass(tx.type)"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="mb-0 fw-medium" style="color: #1F2937;">{{ tx.description }}</p>
+                                                        <div class="d-flex gap-2 mt-1">
+                                                            <span class="badge small" style="background-color: #E5E7EB; color: #1F2937; font-weight: 500;">
+                                                                {{ tx.type }}
+                                                            </span>
+                                                        </div>
+                                                        <p class="mb-0 small text-muted d-lg-none mt-1">{{ tx.timestamp | date:'short' }}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 d-none d-md-table-cell">
+                                                <div class="d-flex flex-column">
+                                                    @if (tx.fromIban === null && tx.toIban === null) {
+                                                        <span class="small text-muted">N/A</span>
+                                                    } @else {
+                                                        <span class="small" style="color: #1F2937; white-space: nowrap;">
+                                                            <i class="fa-solid fa-arrow-right me-1" style="color: #EF4444;"></i>
+                                                            {{ tx.fromIban ?? 'External' }}
+                                                        </span>
+                                                        <span class="small" style="color: #1F2937; white-space: nowrap;">
+                                                            <i class="fa-solid fa-arrow-left me-1" style="color: #10B981;"></i>
+                                                            {{ tx.toIban ?? 'External' }}
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 d-none d-lg-table-cell">
+                                                <span class="small" style="color: #6B7280; white-space: nowrap;">
+                                                    {{ tx.timestamp | date:'MMM d, y' }}<br>
+                                                    {{ tx.timestamp | date:'h:mm a' }}
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 d-none d-lg-table-cell">
+                                                @if (tx.status === 'COMPLETED') {
+                                                    <span class="badge status-completed">
+                                                        <i class="fa-solid fa-circle-check me-1"></i> Completed
+                                                    </span>
+                                                }
+                                                @if (tx.status === 'PENDING') {
+                                                    <span class="badge status-pending">
+                                                        <i class="fa-solid fa-clock me-1"></i> Pending
+                                                    </span>
+                                                }
+                                                @if (tx.status === 'FAILED') {
+                                                    <span class="badge status-failed">
+                                                        <i class="fa-solid fa-circle-xmark me-1"></i> Failed
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="py-3 px-4 text-end">
+                                                <div class="d-flex flex-column align-items-end">
+                                                    <span class="fw-semibold"
+                                                        style="white-space: nowrap;"
+                                                        [style.color]="tx.direction === 'CREDIT' ? '#10B981' : '#EF4444'">
+                                                        {{ tx.amount | currency:'EUR' | txDirection:tx.direction }}
+                                                    </span>
+                                                    <!-- Mobile Status Badge -->
+                                                    <span class="d-lg-none mt-1">
+                                                        @if (tx.status === 'COMPLETED') {
+                                                            <span class="badge small status-completed" style="border: none;">Completed</span>
+                                                        } @else if (tx.status === 'PENDING') {
+                                                            <span class="badge small status-pending" style="border: none;">Pending</span>
+                                                        } @else if (tx.status === 'FAILED') {
+                                                            <span class="badge small status-failed" style="border: none;">Failed</span>
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
