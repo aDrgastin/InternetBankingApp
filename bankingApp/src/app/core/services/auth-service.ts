@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { catchError, EMPTY, map, tap, throwError } from 'rxjs';
 import { User } from '../models/user';
 import { AuthResponse } from '../models/authResponse';
+import { AccountService } from './account-service';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -12,6 +13,7 @@ import { Router } from '@angular/router';
 export class AuthService {
     private readonly API_ENDPOINT = `${environment.API_URL}/api/auth`;
     private readonly http = inject(HttpClient);
+    private readonly accountService = inject(AccountService);
     private readonly router = inject(Router);
 
     private readonly currentUser = signal<User | null>(null);
@@ -48,6 +50,7 @@ export class AuthService {
     logout() {
         localStorage.removeItem('token');
         this.currentUser.set(null);
+        this.accountService.clearAccounts();
         this.router.navigate(['/login']);
     }
 

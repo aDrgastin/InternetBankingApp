@@ -1,1 +1,201 @@
-<p>accounts works!</p>
+<div class="accounts-container">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div>
+            <h2 class="mb-1">My Accounts</h2>
+            <p class="text-muted mb-0">Manage and view all your banking accounts</p>
+        </div>
+        <button class="btn btn-primary">
+            <i class="fa-solid fa-circle-plus me-2"></i>Open New Account
+        </button>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMsg()) {
+        <div class="alert alert-danger">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            {{ errorMsg() }}
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card summary-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-2">Total Balance</h6>
+                            <h3 class="card-value mb-0">{{ getTotalBalance() | currency:'EUR' }}</h3>
+                        </div>
+                        <div class="summary-icon balance-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card summary-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-2">Active Accounts</h6>
+                            <h3 class="card-value mb-0">{{ getActiveAccountsCount() }} / {{ accounts().length }}</h3>
+                        </div>
+                        <div class="summary-icon accounts-icon">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accounts Grid -->
+    <div class="row">
+        @for (account of accounts(); track account.id) {
+            <div class="col-12">
+                <div class="card account-card mb-3" [class.account-selected]="selectedAccountId() === account.id" [style.--accent-clr]="account.type === 'CHECKING' ? '#117eeb' : '#10b981'">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <!-- Account Icon & Type -->
+                            <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="account-icon me-3" [class]="account.type === 'SAVINGS' ? 'account-savings' : 'account-checking'">
+                                        <i class="fa-solid" [class]="account.type === 'SAVINGS' ? 'fa-piggy-bank' : 'fa-wallet'"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1">{{ account.type }}</h5>
+                                        <small class="text-muted">Account #{{ account.id }}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- IBAN -->
+                            <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+                                <label class="form-label text-muted small mb-1">IBAN</label>
+                                <div class="d-flex align-items-center">
+                                    <span class="font-monospace me-2">{{ account.iban | iban }}</span>
+                                    <button class="btn btn-sm btn-link p-0" (click)="copyToClipboard(account.iban)"title="Copy IBAN">
+                                        <i class="fa-solid fa-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Balance -->
+                            <div class="col-lg-2 col-md-4 mb-3 mb-md-0">
+                                <label class="form-label text-muted small mb-1">Balance</label>
+                                <div class="fw-bold fs-5 text-primary" style="color: var(--accent-clr) !important;">
+                                    {{ account.balance | currency:'EUR' }}
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-lg-2 col-6 mb-3 mb-lg-0">
+                                <label class="form-label text-muted small mb-1">Status</label>
+                                <div>
+                                    <span class="badge" [class]="getStatusBadgeClass(account.status)">
+                                        <i class="fa-solid fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                        {{ account.status }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Created Date -->
+                            <div class="col-lg-2 col-6 mb-3 mb-lg-0">
+                                <label class="form-label text-muted small mb-1">Opened</label>
+                                <div class="small">{{ account.createdAt | date: 'mediumDate' }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Account Actions -->
+                        <div class="account-actions mt-3 pt-3 border-top">
+                            <button class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fa-solid fa-left-right me-1"></i>Transfer
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i>Transactions
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fa-solid fa-file-invoice me-1"></i>Statement
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" (click)="selectAccount(account.id)">
+                                <i class="fa-solid" [class]="selectedAccountId() === account.id ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+                        </div>
+
+                        <!-- Expanded Details -->
+                        @if (selectedAccountId() === account.id) {
+                            <div class="account-details mt-3">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="detail-card">
+                                            <h6 class="mb-3">Account Information</h6>
+                                            <div class="detail-row">
+                                                <span class="detail-label">Account ID:</span>
+                                                <span class="detail-value">{{ account.id }}</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">Account Type:</span>
+                                                <span class="detail-value">{{ account.type }}</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">IBAN:</span>
+                                                <span class="detail-value font-monospace">{{ account.iban }}</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">Created:</span>
+                                                <span class="detail-value">{{ account.createdAt | date: 'medium' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="detail-card">
+                                            <h6 class="mb-3">Account Status</h6>
+                                            <div class="detail-row">
+                                                <span class="detail-label">Current Status:</span>
+                                                <span class="detail-value">
+                                                <span class="badge" [class]="getStatusBadgeClass(account.status)">
+                                                    {{ account.status }}
+                                                </span>
+                                                </span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">Available Balance:</span>
+                                                <span class="detail-value text-success fw-bold">{{ account.balance | currency:'EUR' }}</span>
+                                            </div>
+                                            @if (account.status === 'ACTIVE') {
+                                                <div class="detail-row">
+                                                    <button class="btn btn-sm btn-outline-danger mt-2">
+                                                        <i class="fa-solid fa-lock me-1"></i>Close Account
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Empty State -->
+        @if (accounts().length === 0 && !errorMsg()) {
+            <div class="col-12">
+                <div class="card empty-state">
+                    <div class="card-body text-center py-5">
+                        <i class="fa-solid fa-building-columns display-1 text-muted mb-3"></i>
+                        <h4 class="mb-2">No Accounts Found</h4>
+                        <p class="text-muted mb-4">You don't have any accounts yet. Open a new account to get started.</p>
+                        <button class="btn btn-primary">
+                            <i class="fa-solid fa-circle-plus me-2"></i>Open Your First Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
