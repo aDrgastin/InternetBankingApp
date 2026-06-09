@@ -128,24 +128,27 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold" for="pin">PIN</label>
-                                <div class="password-input-wrapper">
+                                <div class="input-group">
                                     <input
-                                    [type]="pinVisible ? 'text' : 'password'"
-                                    class="form-control"
-                                    id="pin"
-                                    [(ngModel)]="editedUser.pin"
-                                    name="pin"
-                                    pattern="\d{11}"
-                                    [readonly]="!editMode"
-                                    [class.form-control-plaintext]="!editMode"
-                                    required
-                                    placeholder="01234567890"
+                                        [type]="pinVisible() ? 'text' : 'password'"
+                                        class="form-control"
+                                        id="pin"
+                                        [(ngModel)]="editedUser.pin"
+                                        name="pin"
+                                        pattern="\d{11}"
+                                        [readonly]="!editMode"
+                                        [class.form-control-plaintext]="!editMode"
+                                        required
+                                        placeholder="01234567890"
                                     >
-                                    <button type="button" class="btn btn-light p-0" (mousedown)="pinVisible = true" (mouseup)="pinVisible = false" (mouseleave)="pinVisible = false">
-                                        <i class="fa-solid" [class]="pinVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        (click)="pinVisible.set(!pinVisible())"
+                                        [attr.aria-label]="pinVisible() ? 'Hide PIN' : 'Show PIN'">
+                                        <i class="fa-solid" [class.fa-eye]="!pinVisible()" [class.fa-eye-slash]="pinVisible()"></i>
                                     </button>
                                 </div>
-                                
                                 <small class="text-muted">11-digit PIN</small>
                             </div>
                             <div class="col-md-6">

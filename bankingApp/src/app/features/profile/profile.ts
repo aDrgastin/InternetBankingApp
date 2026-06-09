@@ -22,7 +22,7 @@ export class Profile {
         confirmPassword: ''
     };
     showPasswordSection: boolean = false;
-    protected pinVisible = false;
+    protected pinVisible = signal(false);
     protected errorMsg = signal('');
 
     toggleEditMode() {
@@ -37,12 +37,10 @@ export class Profile {
         console.log('Saving profile:', this.editedUser);
         this.authService.updateUser(this.editedUser).subscribe({
             next: () => {
-                // Show success message
                 alert('Profile updated successfully!');
                 this.editMode = false;
             },
             error: (err: Error) => {
-                // Show failed message
                 alert(`Failed to update profile!\n${err.message}`);
                 this.errorMsg.set(err.message);
                 this.editMode = false;

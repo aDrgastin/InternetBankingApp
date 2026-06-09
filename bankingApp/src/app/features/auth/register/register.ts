@@ -23,16 +23,24 @@ export class Register {
         repeatPassword: new FormControl('', { nonNullable: true, validators: Validators.required }),
         email : new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] })
     }, { validators: this.passwordsMatch });
+    protected loading = signal(false);
     protected errorMsg = signal('');
+    protected passwordVisible = signal(false);
+    protected repeatPasswordVisible = signal(false);
 
     protected onSubmit() {
         if (this.registerForm.invalid) return;
+        this.loading.set(true);
         const { firstName, lastName, pin, username, password, email } = this.registerForm.getRawValue();
         this.authService.register(pin, username, password, firstName, lastName, email).subscribe({
-            next: () => this.router.navigate(['dashboard']),
+            next: () => {
+                this.router.navigate(['dashboard']);
+                this.loading.set(false);
+            },
             error: (err: Error) => {
                 this.errorMsg.set(err.message);
                 console.error('Error while registering:', err.cause);
+                this.loading.set(false);
             }
         });
     }

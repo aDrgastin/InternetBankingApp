@@ -106,17 +106,6 @@
   color: #495057;
 }
 
-.password-input-wrapper {
-  position: relative;
-}
-
-.password-input-wrapper button {
-  position: absolute;
-  top: 50%;
-  right: 5%;
-  translate: 0 -50%;
-}
-
 /* Buttons */
 .btn-primary {
   background-color: #117eeb;
