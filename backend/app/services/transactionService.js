@@ -15,11 +15,11 @@ export async function getTransactionsByUserId(userId) {
     return await transactionRepository.getAllByUserId(userId);
 }
 
-export async function transferFunds(fromAccId, toAccId, amount, description, reqUserId, reqUserRole) {
+export async function transferFunds(fromAccId, toIban, amount, description, reqUserId, reqUserRole) {
     try {
         const [sourceAcc, destAcc] = await Promise.all([
             accountRepository.getAccountById(fromAccId),
-            accountRepository.getAccountById(toAccId)
+            accountRepository.getAccountByIban(toIban)
         ]);
         if (!sourceAcc || !destAcc) {
             const err = new Error('ACCOUNT_NOT_FOUND');
@@ -33,7 +33,7 @@ export async function transferFunds(fromAccId, toAccId, amount, description, req
         }
         const generatedDesc = `Transfer from ${sourceAcc.iban} to ${destAcc.iban}`;
         const fullDesc = description?.trim() ? `${generatedDesc} | ${description.trim()}` : generatedDesc;
-        return await transactionRepository.transferFunds(fromAccId, toAccId, amount, fullDesc, reqUserId);
+        return await transactionRepository.transferFunds(fromAccId, destAcc.id, amount, fullDesc, reqUserId);
     } catch (err) {
         if (err.statusCode) throw err;
         if (err.sqlMessage === 'SOURCE_ACCOUNT_CLOSED') {
