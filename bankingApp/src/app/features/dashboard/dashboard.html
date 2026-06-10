@@ -1,1 +1,220 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+    <!-- Welcome Header -->
+    <div class="welcome-header mb-4">
+        <div>
+            <h2 class="mb-1">Welcome back, {{ user()?.firstName }}!</h2>
+            <p class="text-muted mb-0">Here's what's happening with your accounts today</p>
+        </div>
+        <div class="header-date">
+            <i class="fa-solid fa-calendar"></i>
+            {{ NOW | date: 'EEEE, MMMM d, y' }}
+        </div>
+    </div>
+
+    <!-- Summary Cards Row -->
+    <div class="row mb-4">
+        <!-- Total Balance Card -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card summary-card balance-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="card-icon balance-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <span class="badge badge-primary">All Accounts</span>
+                    </div>
+                    <h6 class="card-subtitle text-muted mt-1 mb-2">Total Balance</h6>
+                    <h3 class="card-value mb-0">{{ totalBalance() | currency:'EUR' }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Card -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card summary-card accounts-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="card-icon accounts-icon">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <h6 class="card-subtitle text-muted mt-1 mb-2">Active Accounts</h6>
+                    <h3 class="card-value mb-0">{{ accounts().length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Card -->
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card summary-card cards-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="card-icon cards-icon">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <span class="badge badge-primary">{{ activeCards().length }} Active</span>
+                    </div>
+                    <h6 class="card-subtitle text-muted mt-1 mb-2">My Cards</h6>
+                    <h3 class="card-value mb-0">{{ cards().length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Accounts List -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Accounts</h5>
+                    <a href="#" class="text-decoration-none" [routerLink]="['/accounts']">View All</a>
+                    <!--<button class="btn btn-sm btn-outline-primary">
+                        <i class="fa-solid fa-circle-plus me-1"></i>New Account
+                    </button>-->
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>IBAN</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (account of accounts(); track account.id) {
+                                    <tr class="account-row">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="account-type-icon me-2">
+                                                    <i class="fa-solid" [class]="account.type === 'SAVINGS' ? 'fa-piggy-bank' : 'fa-wallet'"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">{{ account.type }}</div>
+                                                    <small class="text-muted">Acc #{{ account.id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="font-monospace">{{ account.iban | iban }}</span>
+                                        </td>
+                                        <td>{{ account.type }}</td>
+                                        <td>
+                                            <span class="badge" [class]="getStatusBadgeClass(account.status)">{{ account.status }}</span>
+                                        </td>
+                                        <td class="text-end fw-bold">{{ account.balance | currency:'EUR' }}</td>
+                                    </tr>
+                                }
+                                @if (accounts().length === 0) {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">No accounts found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Transactions</h5>
+                    <a href="#" class="text-decoration-none" [routerLink]="['/transactions']">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="transaction-list">
+                        @for (tx of recentTransactions(); track tx.id) {
+                            <div class="transaction-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="transaction-icon me-3" [class]="tx.direction === 'DEBIT' ? 'tx-outgoing' : 'tx-incoming'">
+                                        <i [class]="tx.direction === 'DEBIT' ? 'fa-solid fa-turn-up' : 'fa-solid fa-turn-down'"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold">{{ tx.type }}</div>
+                                            <div class="small text-muted">{{ tx.description || 'No description' }}</div>
+                                            <div class="small text-muted font-monospace">
+                                                {{ tx.direction === 'DEBIT' ? 'To: ' + (tx.toIban | iban) : 'From: ' + (tx.fromIban | iban) }}
+                                            </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold" [class]="tx.direction === 'DEBIT' ? 'text-danger' : 'text-success'">
+                                            {{ tx.amount | currency:'EUR' | txDirection:tx.direction }}
+                                        </div>
+                                        <div class="small text-muted">{{ tx.timestamp | date: 'short' }}</div>
+                                        <span class="badge badge-sm" [class]="getStatusBadgeClass(tx.status)">{{ tx.status }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (recentTransactions().length === 0) {
+                            <div class="text-center text-muted py-4">No transactions yet</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4 mb-4">
+            <!-- Quick Actions Card -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" [routerLink]="['/transactions']" class="btn btn-primary">
+                            <i class="fa-solid fa-left-right me-2"></i>Transfer Money
+                        </a>
+                        <button class="btn btn-outline-primary">
+                            <i class="fa-solid fa-file-lines me-2"></i>Pay Bills
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="fa-solid fa-phone me-2"></i>Mobile Top-Up
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards Display -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Cards</h5>
+                    <!--<button class="btn btn-sm btn-link p-0">
+                        <i class="fa-solid fa-circle-plus"></i>
+                    </button>-->
+                    <a href="#" class="text-decoration-none" [routerLink]="['/cards']">View All</a>
+                </div>
+                <div class="card-body">
+                    @for (card of cards(); track card.id) {
+                        <div class="credit-card mb-3" [class]="card.type === 'CREDIT' ? 'card-credit' : 'card-debit'">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="card-type-badge">{{ card.type }}</div>
+                                <i class="bi bi-credit-card-2-front card-chip-icon"></i>
+                            </div>
+                            <div class="card-number mb-3 font-monospace">{{ card.number | maskCardNo }}</div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <small class="text-white-50 d-block">Expires</small>
+                                    <span class="fw-semibold">{{ card.expiryDate | date: 'MM/yy' }}</span>
+                                </div>
+                                <span class="badge" [class]="getStatusBadgeClass(card.status)">{{ card.status }}</span>
+                            </div>
+                        </div>
+                    }
+                    @if (cards().length === 0) {
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-credit-card display-4 d-block mb-2"></i>
+                            <p class="mb-0">No cards available</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

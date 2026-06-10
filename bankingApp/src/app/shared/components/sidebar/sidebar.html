@@ -7,8 +7,8 @@
     </div>
     <nav class="sidebar-menu">
         <ul>
-                <li><a href="#" [routerLink]="['']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-item" title="Dashboard">
             @if (authService.isAuthenticated()) {
+                <li><a href="#" [routerLink]="['/dashboard']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-item" title="Dashboard">
                     <i class="fa-solid fa-house" [class.collapsed]="isSidebarCollapsed()"></i>
                     <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Dashboard</span>
                 </a></li>

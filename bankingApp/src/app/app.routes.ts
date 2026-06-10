@@ -7,9 +7,9 @@ import { authGuard } from './core/guards/auth-guard';
 import { Cards } from './features/cards/cards';
 
 export const routes: Routes = [
-    { path: '', component: Dashboard },
     { path: 'login', loadComponent: () => import('./features/auth/login/login').then(c => c.Login) },
     { path: 'register', loadComponent: () => import('./features/auth/register/register').then(c => c.Register) },
+    { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
     { path: 'accounts', component: Accounts, canActivate: [authGuard] },
     { path: 'transactions', component: Transactions, canActivate: [authGuard] },
     { path: 'cards', component: Cards, canActivate: [authGuard] },
