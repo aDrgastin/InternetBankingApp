@@ -15,10 +15,6 @@ export class TransactionService {
     readonly transactions = this.transactionsSignal.asReadonly();
     private loaded = false;
 
-    constructor() { // TEMPORARY UNTIL BETTER SOLUTION IS FOUND
-        this.loadTransactions().subscribe();
-    }
-
     loadTransactions() {
         if (this.loaded) return EMPTY;
         return this.http.get<{ status: string, transactions: any[] }>(`${this.API_ENDPOINT}/my`).pipe(
@@ -42,6 +38,11 @@ export class TransactionService {
     clearTransactions() {
         this.transactionsSignal.set([]);
         this.loaded = false;
+    }
+
+    refetch() {
+        this.loaded = false;
+        return this.loadTransactions();
     }
 
     private mapTransaction(t: Transaction): Transaction {

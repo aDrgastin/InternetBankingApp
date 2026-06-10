@@ -15,11 +15,7 @@ export class AccountService {
     readonly accounts = this.accountsSignal.asReadonly();
     private loaded = false;
 
-    constructor() { // TEMPORARY UNTIL BETTER SOLUTION IS FOUND
-        this.loadAccounts().subscribe();
-    }
-
-    loadAccounts() { // SHOULD RETURN NOTHING- INITIALIZATION FUNCTION???????
+    loadAccounts() {
         if (this.loaded) return EMPTY;
         return this.http.get<{ status: string, accounts: any[] }>(`${this.API_ENDPOINT}/my`).pipe(
             map(res => {
@@ -42,6 +38,11 @@ export class AccountService {
     clearAccounts() {
         this.accountsSignal.set([]);
         this.loaded = false;
+    }
+
+    refetch() {
+        this.loaded = false;
+        return this.loadAccounts();
     }
 
     private mapAccount(acc: Account): Account {

@@ -15,10 +15,6 @@ export class CardService {
     readonly cards = this.cardsSignal.asReadonly();
     private loaded = false;
 
-    constructor() { // TEMPORARY
-        this.loadCards().subscribe();
-    }
-
     loadCards() {
         if (this.loaded) return EMPTY;
         return this.http.get<{ status: string, cards: any[] }>(`${this.API_ENDPOINT}/my`).pipe(
@@ -42,6 +38,11 @@ export class CardService {
     clearCards() {
         this.cardsSignal.set([]);
         this.loaded = false;
+    }
+
+    refetch() {
+        this.loaded = false;
+        return this.loadCards();
     }
 
     updateCardStatus(cardId: number, newStatus: string) {

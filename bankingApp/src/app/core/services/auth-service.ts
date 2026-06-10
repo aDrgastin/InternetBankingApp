@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { catchError, EMPTY, map, tap, throwError } from 'rxjs';
+import { catchError, EMPTY, forkJoin, map, switchMap, tap, throwError } from 'rxjs';
 import { User } from '../models/user';
 import { AuthResponse } from '../models/authResponse';
 import { AccountService } from './account-service';
@@ -36,7 +36,13 @@ export class AuthService {
             tap(res => {
                 localStorage.setItem('token', res.token);
                 this.currentUser.set(res.user);
-            }), catchError((err: HttpErrorResponse) => {
+            }),
+            switchMap(() => forkJoin([
+                this.accountService.loadAccounts(),
+                this.transactionService.loadTransactions(),
+                this.cardService.loadCards()
+            ])),
+            catchError((err: HttpErrorResponse) => {
                 const status = err.error?.status;
                 let message = 'An unexpected error occured';
                 if (status === 'USER_NOT_FOUND' || status === 'WRONG_PASSWORD') {
@@ -74,7 +80,13 @@ export class AuthService {
             tap((user: User) => {
                 this.currentUser.set(user);
                 console.log('Auto-logged in as', user.username);
-            }), catchError((err: HttpErrorResponse) => {
+            }),
+            switchMap(() => forkJoin([
+                this.accountService.loadAccounts(),
+                this.transactionService.loadTransactions(),
+                this.cardService.loadCards()
+            ])),
+            catchError((err: HttpErrorResponse) => {
                 const status = err.error?.status;
                 if (status === 'NO_TOKEN') {
                     console.error('No token:', err);
