@@ -4,10 +4,11 @@ import { Card } from './card';
 import { AccountService } from '../../core/services/account-service';
 import { DatePipe, SlicePipe } from '@angular/common';
 import { IbanPipe } from '../../shared/pipes/iban-pipe';
+import { MaskCardNoPipe } from '../../shared/pipes/mask-card-no-pipe';
 
 @Component({
   selector: 'app-cards',
-  imports: [DatePipe, SlicePipe, IbanPipe],
+  imports: [DatePipe, SlicePipe, IbanPipe, MaskCardNoPipe],
   templateUrl: './cards.html',
   styleUrl: './cards.css',
 })
@@ -47,11 +48,6 @@ export class Cards {
     getAccount(accountId?: number) {
         if (!accountId) return null;
         return this.accounts().find(a => a.id === accountId) ?? null;
-    }
-
-    maskCardNumber(number: string): string {
-        const clean = number.replace(/\s/g, '');
-        return `•••• •••• •••• ${clean.slice(-4)}`;
     }
 
     isExpiringSoon(date: Date): boolean {
