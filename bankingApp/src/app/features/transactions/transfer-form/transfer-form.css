@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+/* Labels */
+.form-label {
+  color: #9CA3AF;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+/* Inputs, selects, textareas */
+.form-control,
+.form-select {
+  background-color: #243447;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #E5E7EB;
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #243447;
+  border-color: #117eeb;
+  color: #E5E7EB;
+  box-shadow: 0 0 0 3px rgba(17, 126, 235, 0.2);
+  outline: none;
+}
+
+.form-select {
+  --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.form-control::placeholder {
+  color: #4B5563;
+}
+
+/* Number input — remove spinner arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Dropdown options */
+.form-select option {
+  background-color: #1e2f3d;
+  color: #E5E7EB;
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Validation error state */
+.form-control.error,
+.form-select.error {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Alert override for dark surface */
+.alert-danger {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 3px solid #EF4444;
+  color: #FCA5A5;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.875rem;
+}
+
+.alert-danger::before {
+  content: '\f071'; /* fa-triangle-exclamation */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  color: #EF4444;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Submit button */
+.btn-primary {
+  background-color: #117eeb;
+  border-color: #117eeb;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  transition: background-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0f6fd4;
+  border-color: #0f6fd4;
+  box-shadow: 0 4px 12px rgba(17, 126, 235, 0.35);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

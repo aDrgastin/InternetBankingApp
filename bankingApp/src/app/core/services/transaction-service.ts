@@ -45,6 +45,22 @@ export class TransactionService {
         return this.loadTransactions();
     }
 
+    transferFunds(fromAccId: number, toIban: string, amount: number, description: string | null) {
+        return this.http.post<{ status: string }>(`${this.API_ENDPOINT}/transfer`, { fromAccId, toIban, amount, description }).pipe(
+            catchError((err: HttpErrorResponse) => {
+                const status = err.error?.status;
+                let message = 'Failed to transfer funds';
+                if (status === 'MISSING_DATA') message = 'Missing data';
+                else if (status === 'ACCOUNT_NOT_FOUND') message = 'Account not found';
+                else if (status === 'FORBIDDEN') message = 'Forbidden operation';
+                else if (status === 'SOURCE_ACCOUNT_CLOSED') message = 'Source account is closed';
+                else if (status === 'DESTINATION_ACCOUNT_CLOSED') message = 'Destination account is closed';
+                else if (status === 'INSUFFICIENT_FUNDS') message = 'Insufficient funds';
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
     private mapTransaction(t: Transaction): Transaction {
         return {
             ...t,

@@ -1,0 +1,32 @@
+<form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+    <fieldset class="mb-3">
+        <label for="account" class="form-label">From account</label>
+        <select class="form-select" id="account" formControlName="fromAccId">
+            <option [value]="null" selected>Choose</option>
+            @for (a of accounts(); track a.id) {
+                <option [value]="a.id">{{a.type | titlecase}} ({{a.iban}})</option>
+            }
+        </select>
+    </fieldset>
+    <fieldset class="mb-3">
+        <label for="to-iban" class="form-label">Recipient IBAN</label>
+        <input type="text" class="form-control" id="to-iban" placeholder="HR1234567890123456789" formControlName="toIban" [class.error]="checkValidity('toIban')">
+        @if (transferForm.get('toIban')?.hasError('pattern')) {
+            <p class="alert alert-danger mb-0 mt-2 py-2">IBAN pattern incorrect</p>
+        }
+    </fieldset>
+    <fieldset class="mb-3">
+        <label for="amount" class="form-label">Amount (EUR)</label>
+        <input type="number" class="form-control" id="amount" step="0.01" formControlName="amount" [class.error]="checkValidity('amount')">
+    </fieldset>
+    <fieldset class="mb-3">
+        <label for="description" class="form-label">Description (optional)</label>
+        <textarea class="form-control" id="description" formControlName="description"></textarea>
+    </fieldset>
+
+    @if (errorMsg()) {
+        <p class="alert alert-danger py-2 mt-2 mb-0">{{ errorMsg() }}</p>
+    }
+
+    <button type="submit" class="btn btn-primary w-100 mt-4 mb-3" [disabled]="transferForm.invalid || loading()">{{loading() ? 'Sending...' : 'Send'}}</button>
+</form>

@@ -104,3 +104,99 @@
     padding-right: 0.75rem;
   }
 }
+
+/* Transfer Modal */
+.transfer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 26, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 101;
+  animation: backdropIn 0.2s ease;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.transfer-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 102;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.transfer-modal.transfer-modal--open {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.transfer-modal__dialog {
+  background: #1e2f3d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.transfer-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a252f;
+}
+
+.transfer-modal__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(17, 126, 235, 0.15);
+  color: #117eeb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.transfer-modal__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #E5E7EB;
+  margin: 0;
+}
+
+.transfer-modal__close {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.transfer-modal__close:hover {
+  color: #E5E7EB;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.transfer-modal__body {
+  max-height: 80vh;
+  padding: 1.5rem;
+  overflow-y: auto;
+}

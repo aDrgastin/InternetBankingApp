@@ -1,9 +1,14 @@
 <div class="container-fluid">
     <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col">
+    <div class="row mb-4 row-gap-2">
+        <div class="col col-sm-7 col-xl-10">
             <h1 class="mb-0" style="color: #1a252f;">Transactions</h1>
             <p class="text-muted small mb-0">View and filter your transaction history</p>
+        </div>
+        <div class="col col-sm-5 col-xl-2 d-flex align-items-center justify-content-center justify-content-sm-end">
+            <button class="mw-100 btn btn-primary fw-semibold text-nowrap" (click)="showTransferForm.set(true)">
+                <i class="fa-solid fa-money-bill-transfer me-2"></i>Transfer funds
+            </button>
         </div>
     </div>
 
@@ -224,6 +229,42 @@
                         </div>
                     }
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Backdrop -->
+    @if (showTransferForm()) {
+        <div class="transfer-modal-backdrop" (click)="showTransferForm.set(false)" aria-hidden="true"></div>
+    }
+    <!-- Transfer Modal -->
+    <div class="transfer-modal"
+        [class.transfer-modal--open]="showTransferForm()"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transfer-modal-title">
+
+        <div class="transfer-modal__dialog">
+            <div class="transfer-modal__header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="transfer-modal__icon">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <h2 class="transfer-modal__title" id="transfer-modal-title">Transfer Funds</h2>
+                </div>
+                <button
+                    type="button"
+                    class="transfer-modal__close"
+                    (click)="showTransferForm.set(false)"
+                    aria-label="Close transfer form">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="transfer-modal__body">
+                @if (showTransferForm()) {
+                    <app-transfer-form (success)="onTransferSuccess()" />
+                }
             </div>
         </div>
     </div>
