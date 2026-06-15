@@ -1,7 +1,7 @@
 import * as transactionService from '../services/transactionService.js'
 
 export async function getMyTransactions(req, res) {
-    const userId = req.decoded.id;
+    const userId = res.locals.token.id;
     try {
         const transactions = await transactionService.getTransactionsByUserId(userId);
         return res.json({ status: 'SUCCESS', transactions });
@@ -51,7 +51,7 @@ export async function transferFunds(req, res) {
     }
     
     try {
-        const result = await transactionService.transferFunds(fromAccId, toIban, amount, description, req.decoded.id, req.decoded.role);
+        const result = await transactionService.transferFunds(fromAccId, toIban, amount, description, res.locals.token.id, res.locals.token.role);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {
@@ -70,7 +70,7 @@ export async function posPayout(req, res) {
     if (!amount) return res.status(400).json({ status: 'MISSING_AMOUNT' });
     
     try {
-        const result = await transactionService.posPayout(fromAccId, toAccId, amount, description, req.decoded.id);
+        const result = await transactionService.posPayout(fromAccId, toIban, amount, description, res.locals.token.id);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {
@@ -92,7 +92,7 @@ export async function withdrawFunds(req, res) {
     }
 
     try {
-        const result = await transactionService.withdrawFunds(accId, amount, description, req.decoded.id);
+        const result = await transactionService.withdrawFunds(accId, amount, description, res.locals.token.id);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {
@@ -114,7 +114,7 @@ export async function depositFunds(req, res) {
     }
 
     try {
-        const result = await transactionService.depositFunds(accId, amount, description, req.decoded.id);
+        const result = await transactionService.depositFunds(accId, amount, description, res.locals.token.id);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {

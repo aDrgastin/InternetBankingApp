@@ -1,7 +1,7 @@
 import * as accountService from '../services/accountService.js'
 
 export async function getMyAccounts(req, res) {
-    const userId = req.decoded.id;
+    const userId = res.locals.token.id;
     try {
         const accounts = await accountService.getAccountsByUserId(userId);
         return res.json({ status: 'SUCCESS', accounts });
@@ -33,7 +33,7 @@ export async function getAccountById(req, res) {
     }
 
     try {
-        const account = await accountService.getAccountById(accountId, req.decoded.id, req.decoded.role);
+        const account = await accountService.getAccountById(accountId, res.locals.token.id, res.locals.token.role);
         return res.json({ status: 'SUCCESS', account });
     } catch (err) {
         if (err.statusCode) {
@@ -48,7 +48,7 @@ export async function getAccountByIban(req, res) {
     const iban = req.params.iban;
 
     try {
-        const account = await accountService.getAccountByIban(iban, req.decoded.id, req.decoded.role);
+        const account = await accountService.getAccountByIban(iban, res.locals.token.id, res.locals.token.role);
         return res.json({ status: 'SUCCESS', account });
     } catch (err) {
         if (err.statusCode) {
@@ -87,7 +87,7 @@ export async function updateAccountStatus(req, res) {
     }
 
     try {
-        const result = await accountService.updateAccountStatus(accountId, status, req.decoded.id);
+        const result = await accountService.updateAccountStatus(accountId, status, res.locals.token.id);
         return res.json({ status: 'SUCCESS' });
     } catch (err) {
         if (err.statusCode) {

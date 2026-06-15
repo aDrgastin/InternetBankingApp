@@ -42,7 +42,7 @@ export async function register(req, res) {
 
 export async function me(req, res) {
     try {
-        const user = await authService.getMe(req.decoded.id);
+        const user = await authService.getMe(res.locals.token.id);
         return res.json({ user });
     } catch (err) {
         if (err.statusCode) {

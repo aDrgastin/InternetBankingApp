@@ -1,7 +1,7 @@
 import * as cardService from "../services/cardService.js";
 
 export async function getMyCards(req, res) {
-    const userId = req.decoded.id;
+    const userId = res.locals.token.id;
     try {
         const cards = await cardService.getCardsByUserId(userId);
         return res.json({ status: 'SUCCESS', cards });
@@ -18,7 +18,7 @@ export async function getCardById(req, res) {
     }
 
     try {
-        const card = await cardService.getCardById(cardId, req.decoded.id, req.decoded.role);
+        const card = await cardService.getCardById(cardId, res.locals.token.id, res.locals.token.role);
         return res.json({ status: 'SUCCESS', card });
     } catch (err) {
         if (err.statusCode) {
@@ -61,7 +61,7 @@ export async function updateCardStatus(req, res) {
     }
 
     try {
-        const updated = await cardService.updateCardStatus(cardId, status, req.decoded.id, req.decoded.role);
+        const updated = await cardService.updateCardStatus(cardId, status, res.locals.token.id, res.locals.token.role);
         return res.json({ card: updated });
     } catch (err) {
         if (err.statusCode) {

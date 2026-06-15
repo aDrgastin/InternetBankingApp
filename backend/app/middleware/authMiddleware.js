@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import config from '../../config.js'
 
 /**
- * Extracts token from authorization header and stores decoded token in req.decoded
+ * Extracts token from authorization header and stores decoded token in res.locals.token
  * @param {import("express").Request} req Request object
  * @param {import("express").Response} res Response object
  * @param {import("express").NextFunction} next function that executes succeeding middleware
@@ -23,7 +23,7 @@ export function verifyToken(req, res, next) {
             }
             return res.status(403).json({ status: 'INVALID_TOKEN' });
         }
-        req.decoded = {
+        res.locals.token = {
             id: Number(decoded.sub),
             ...decoded
         };
@@ -39,10 +39,10 @@ export function verifyToken(req, res, next) {
  */
 export function requireRole(...allowedRoles) {
     return (req, res, next) => {
-        if (!req.decoded) {
+        if (!res.locals) {
             return res.status(401).json({ status: 'NO_TOKEN' });
         }
-        if (!allowedRoles.includes(req.decoded.role)) {
+        if (!allowedRoles.includes(res.locals.token.role)) {
             return res.status(403).json({ status: 'FORBIDDEN' });
         }
         next();
@@ -58,13 +58,13 @@ export function requireRole(...allowedRoles) {
 export function requireSelfOrRole(...allowedRoles) {
     return (req, res, next) => {
         const resourceId = req.params.id;
-        const requesterId = req.decoded?.id;
+        const requesterId = res.locals.token?.id;
 
-        if (!req.decoded) {
+        if (!res.locals) {
             return res.status(401).json({ status: 'NO_TOKEN' });
         }
         if (resourceId == requesterId) return next();
-        if (allowedRoles.includes(req.decoded.role)) return next();
+        if (allowedRoles.includes(res.locals.token.role)) return next();
         return res.status(403).json({ status: 'FORBIDDEN' });
     };
 }
