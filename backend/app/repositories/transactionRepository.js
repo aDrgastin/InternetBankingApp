@@ -6,7 +6,7 @@ export async function getAllByAccountId(accountId) {
         conn = await dbPool.getConnection();
         let [rows] = await conn.execute(`SELECT t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
             FROM Transaction t JOIN TransactionType tt ON t.type_id = tt.id
-            WHERE t.fromAccountId = ? OR t.toAccountId = ?
+            WHERE from_account_id = ? OR to_account_id = ?
             ORDER BY timestamp DESC;`, [accountId, accountId]);
         return rows;
     } catch (err) {
