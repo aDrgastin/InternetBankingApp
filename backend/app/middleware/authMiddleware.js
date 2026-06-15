@@ -23,7 +23,10 @@ export function verifyToken(req, res, next) {
             }
             return res.status(403).json({ status: 'INVALID_TOKEN' });
         }
-        req.decoded = decoded;
+        req.decoded = {
+            id: Number(decoded.sub),
+            ...decoded
+        };
         next();
     });
 }

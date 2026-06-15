@@ -27,8 +27,7 @@ export async function login(username, password) {
     }
 
     const token = jwt.sign({
-        id: user.id,
-        username: user.username,
+        sub: user.id,
         role: user.role,
     }, config.jwtSecret, { expiresIn: Number(config.jwtExpiresIn) });
     const userDTO = {
@@ -61,8 +60,7 @@ export async function register(newUser) {
     try {
         const registeredUser = await authRepository.registerUser(insertUser);
         const token = jwt.sign({
-            id: registeredUser.id,
-            username: registeredUser.username,
+            sub: registeredUser.id,
             role: registeredUser.role
         }, config.jwtSecret, { expiresIn: Number(config.jwtExpiresIn) });
 
