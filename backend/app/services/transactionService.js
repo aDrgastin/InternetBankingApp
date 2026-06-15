@@ -53,11 +53,11 @@ export async function transferFunds(fromAccId, toIban, amount, description, reqU
     }
 }
 
-export async function posPayout(fromAccId, toAccId, amount, description, userId) {
+export async function posPayout(fromAccId, toIban, amount, description, userId) {
     try {
         const [sourceAcc, destAcc] = await Promise.all([
             accountRepository.getAccountById(fromAccId),
-            accountRepository.getAccountById(toAccId)
+            accountRepository.getAccountByIban(toIban)
         ]);
         if (!sourceAcc || !destAcc) {
             const err = new Error('ACCOUNT_NOT_FOUND');
@@ -66,7 +66,7 @@ export async function posPayout(fromAccId, toAccId, amount, description, userId)
         }
         const generatedDesc = `POS payment from ${sourceAcc.iban} to ${destAcc.iban}`;
         const fullDesc = description?.trim() ? `${generatedDesc} | ${description.trim()}` : generatedDesc;
-        return await transactionRepository.posPayout(fromAccId, toAccId, amount, fullDesc, userId);
+        return await transactionRepository.posPayout(fromAccId, destAcc.id, amount, fullDesc, userId);
     } catch (err) {
         if (err.statusCode) throw err;
         if (err.sqlMessage === 'SOURCE_ACCOUNT_CLOSED') {

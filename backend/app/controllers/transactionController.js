@@ -63,11 +63,10 @@ export async function transferFunds(req, res) {
 }
 
 export async function posPayout(req, res) {
-    const { fromAccId, toAccId, amount, description } = req.body;
-    if (!fromAccId || !toAccId) {
-        return res.status(400).json({ status: 'MISSING_ID' });
+    const { fromAccId, toIban, amount, description } = req.body;
+    if (!fromAccId || !toIban || !amount) {
+        return res.status(400).json({ status: 'MISSING_DATA' });
     }
-    if (!amount) return res.status(400).json({ status: 'MISSING_AMOUNT' });
     
     try {
         const result = await transactionService.posPayout(fromAccId, toIban, amount, description, res.locals.token.id);
