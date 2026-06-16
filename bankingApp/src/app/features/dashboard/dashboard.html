@@ -12,9 +12,9 @@
     </div>
 
     <!-- Summary Cards Row -->
-    <div class="row mb-4">
+    <div class="row mb-4 justify-content-center row-gap-3">
         <!-- Total Balance Card -->
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="col-lg-4 col-md-6 summary-card-wrapper">
             <div class="card summary-card balance-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -30,7 +30,7 @@
         </div>
 
         <!-- Accounts Card -->
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="col-lg-4 col-md-6 summary-card-wrapper">
             <div class="card summary-card accounts-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Cards Card -->
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="col-lg-4 col-md-6 summary-card-wrapper">
             <div class="card summary-card cards-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -80,7 +80,7 @@
                                 <tr>
                                     <th>Account</th>
                                     <th>IBAN</th>
-                                    <th>Type</th>
+                                    <!--<th>Type</th>-->
                                     <th>Status</th>
                                     <th class="text-end">Balance</th>
                                 </tr>
@@ -90,7 +90,7 @@
                                     <tr class="account-row">
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="account-type-icon me-2">
+                                                <div class="account-type-icon me-2" [style.color]="account.type === 'SAVINGS' ? '#10B981' : ''">
                                                     <i class="fa-solid" [class]="account.type === 'SAVINGS' ? 'fa-piggy-bank' : 'fa-wallet'"></i>
                                                 </div>
                                                 <div>
@@ -102,7 +102,7 @@
                                         <td>
                                             <span class="font-monospace">{{ account.iban | iban }}</span>
                                         </td>
-                                        <td>{{ account.type }}</td>
+                                        <!--<td>{{ account.type | titlecase }}</td>-->
                                         <td>
                                             <span class="badge" [class]="getStatusBadgeClass(account.status)">{{ account.status }}</span>
                                         </td>

@@ -2,9 +2,9 @@
     <!-- Page Header -->
     <div class="page-header d-flex align-items-center justify-content-between mb-4">
         <div>
-            <h4 class="page-title mb-1">
+            <h1 class="page-title mb-1">
                 <i class="fa-solid fa-credit-card me-2" style="color: #117eeb;"></i>My Cards
-            </h4>
+            </h1>
             <p class="page-subtitle mb-0">Manage your debit and credit cards</p>
         </div>
     </div>
@@ -127,7 +127,7 @@
 
     <div class="row g-4 mt-2">
         @for (card of filteredCards(); track card.id) {
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 card-wrapper">
                 <!-- Visual Card -->
                 <div
                     class="bank-card"
@@ -190,7 +190,8 @@
                             <div class="text-end">
                                 @if (getAccount(card.accountId); as account) {
                                     <div class="card-meta-label">ACCOUNT</div>
-                                    <div class="card-account-ref">{{ account.iban | slice:0:10 }}…</div>
+                                    <!--<div class="card-account-ref">{{ account.iban | slice:0:10 }}…</div>-->
+                                    <div class="card-account-ref">{{ account.iban | iban }}</div>
                                 }
                             </div>
                         </div>
@@ -209,17 +210,17 @@
                 <!-- Expanded Detail Panel -->
                 @if (selectedCard()?.id === card.id) {
                     <div class="detail-panel mt-2">
-                        <div class="detail-row">
+                        <!--<div class="detail-row">
                             <span class="detail-key"><i class="fa-solidfa-hashtag me-1"></i>Card ID</span>
                             <span class="detail-val">#{{ card.id }}</span>
-                        </div>
+                        </div>-->
                         <div class="detail-row">
                             <span class="detail-key"><i class="fa-solid fa-calendar-plus me-1"></i>Issued</span>
                             <span class="detail-val">{{ card.createdAt | date:'mediumDate' }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-key"><i class="fa-solid fa-calendar-xmark me-1"></i>Expires</span>
-                            <span class="detail-val" [style.color]="card.status === 'EXPIRED' ? '#EF4444' : isExpiringSoon(card.expiryDate) ? '#F59E0B' : 'inherit'">
+                            <span class="detail-val" [style.color]="card.status === 'EXPIRED' ? '#EF4444' : isExpiringSoon(card.expiryDate) ? '#F59E0B' : '#E5E7EB'">
                                 {{ card.expiryDate | date:'mediumDate' }}
                                 @if (isExpiringSoon(card.expiryDate)) {
                                     <span class="badge ms-1" style="background:#F59E0B; color:#000; font-size:0.65rem;">Soon</span>
@@ -228,8 +229,8 @@
                         </div>
                         <div class="detail-row">
                             <span class="detail-key"><i class="fa-solid fa-circle me-1"></i>Status</span>
-                            <span class="detail-val fw-semibold" [style.color]="card.status === 'ACTIVE' ? '#10B981' : card.status === 'BLOCKED' ? '#EF4444' : '#9CA3AF'">
-                                {{ card.status }}
+                            <span class="detail-val fw-semibold" [style.color]="card.status === 'ACTIVE' ? '#10B981' : card.status === 'BLOCKED' ? '#EF4444' : '#c3ccdb'">
+                                {{ card.status | titlecase }}
                             </span>
                         </div>
                         @if (getAccount(card.accountId); as account) {

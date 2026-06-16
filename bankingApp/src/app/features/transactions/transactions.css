@@ -81,7 +81,7 @@
 
 /* Form select styling */
 .form-select:focus {
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   box-shadow: 0 0 0 0.2rem rgba(17, 126, 235, 0.15);
 }
 
@@ -141,7 +141,7 @@
 }
 
 .transfer-modal__dialog {
-  background: #1e2f3d;
+  background: var(--secondary-bg);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   width: 100%;
@@ -164,7 +164,7 @@
   height: 36px;
   border-radius: 9px;
   background: rgba(17, 126, 235, 0.15);
-  color: #117eeb;
+  color: var(--accent-clr-light);
   display: flex;
   align-items: center;
   justify-content: center;

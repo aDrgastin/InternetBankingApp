@@ -48,7 +48,7 @@
 
 .balance-icon {
   background-color: rgba(17, 126, 235, 0.1);
-  color: #117eeb;
+  color: var(--accent-clr-light);
 }
 
 .accounts-icon {
@@ -97,7 +97,7 @@
 
 .account-checking {
   background-color: rgba(17, 126, 235, 0.1);
-  color: #117eeb;
+  color: var(--accent-clr-light);
 }
 
 .account-savings {
@@ -120,7 +120,7 @@
 }
 
 .badge-secondary {
-  background-color: #6c757d;
+  background-color: var(--tertiary-bg);
   color: white;
 }
 
@@ -133,43 +133,43 @@
 
 /* Buttons */
 .btn-primary {
-  background-color: #117eeb;
-  border-color: #117eeb;
+  background-color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #0d6ac9;
-  border-color: #0d6ac9;
+  background-color: var(--accent-clr-light-hover);
+  border-color: var(--accent-clr-light-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(17, 126, 235, 0.3);
 }
 
 .btn-outline-primary {
-  color: #117eeb;
+  color: var(--accent-clr-light);
   color: var(--accent-clr);
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   border-color: var(--accent-clr);
   font-weight: 600;
 }
 
 .btn-outline-primary:hover {
-  background-color: #117eeb;
+  background-color: var(--accent-clr-light);
   background-color: var(--accent-clr);
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   border-color: var(--accent-clr);
   color: white;
 }
 
 .btn-outline-secondary {
-  color: #6c757d;
-  border-color: #6c757d;
+  color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
 }
 
 .btn-outline-secondary:hover {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
   color: white;
 }
 
@@ -185,13 +185,13 @@
 }
 
 .btn-link {
-  color: #117eeb;
+  color: var(--accent-clr-light);
   color: var(--accent-clr);
   text-decoration: none;
 }
 
 .btn-link:hover {
-  color: #0d6ac9;
+  color: var(--accent-clr-light-hover);
   color: var(--accent-clr);
 }
 
@@ -214,7 +214,7 @@
   font-weight: 700;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid;
-  border-bottom-color: #117eeb;
+  border-bottom-color: var(--accent-clr-light);
   border-bottom-color: var(--accent-clr);
 }
 
@@ -231,7 +231,7 @@
 }
 
 .detail-label {
-  color: #6c757d;
+  color: var(--tertiary-bg);
   font-weight: 500;
   font-size: 0.875rem;
 }
@@ -261,7 +261,7 @@
 
 /* Text Colors */
 .text-primary {
-  color: #117eeb !important;
+  color: var(--accent-clr-light) !important;
 }
 
 .text-success {
@@ -294,7 +294,7 @@
   }
 
   .account-selected {
-    border-top-color: #117eeb;
+    border-top-color: var(--accent-clr-light);
   }
 
   .account-card:hover {

@@ -31,6 +31,10 @@
 }
 
 /* Summary Cards */
+.summary-card-wrapper {
+  max-width: 400px;
+}
+
 .summary-card {
   border: none;
   border-radius: 12px;
@@ -263,6 +267,13 @@
 
 /* Credit Cards Display */
 .credit-card {
+  max-width: 450px;
+  aspect-ratio: 1.586;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: auto;
+  margin-right: auto;
   padding: 1.5rem;
   border-radius: 16px;
   color: white;
@@ -273,7 +284,7 @@
 .credit-card::before {
   content: '';
   position: absolute;
-  top: -50%;
+  top: -55%;
   right: -20%;
   width: 200px;
   height: 200px;

@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #117eeb 0%, #0d6ac9 100%);
+  background: linear-gradient(135deg, var(--accent-clr-light) 0%, var(--accent-clr-light-hover) 100%);
   border-radius: 50%;
   color: white;
 }
@@ -72,7 +72,7 @@
 
 .card-header {
   background-color: #f8f9fa;
-  border-bottom: 2px solid #117eeb;
+  border-bottom: 2px solid var(--accent-clr-light);
   padding: 1rem 1.5rem;
   font-weight: 600;
   color: #1a252f;
@@ -96,7 +96,7 @@
 }
 
 .form-control:focus {
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   box-shadow: 0 0 0 0.2rem rgba(17, 126, 235, 0.25);
 }
 
@@ -108,54 +108,54 @@
 
 /* Buttons */
 .btn-primary {
-  background-color: #117eeb;
-  border-color: #117eeb;
+  background-color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
   font-weight: 600;
   padding: 0.625rem 1.5rem;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #0d6ac9;
-  border-color: #0d6ac9;
+  background-color: var(--accent-clr-light-hover);
+  border-color: var(--accent-clr-light-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(17, 126, 235, 0.3);
 }
 
 .btn-primary:disabled {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
   transform: none;
 }
 
 .btn-outline-primary {
-  color: #117eeb;
-  border-color: #117eeb;
+  color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover {
-  background-color: #117eeb;
-  border-color: #117eeb;
+  background-color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
   color: white;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
   font-weight: 600;
 }
 
 .btn-outline-secondary {
-  color: #6c757d;
-  border-color: #6c757d;
+  color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
 }
 
 .btn-outline-secondary:hover {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background-color: var(--tertiary-bg);
+  border-color: var(--tertiary-bg);
   color: white;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .bg-primary {
-  background-color: #117eeb !important;
+  background-color: var(--accent-clr-light) !important;
 }
 
 /* Security Switches */
@@ -189,12 +189,12 @@
 }
 
 .form-check-input:checked {
-  background-color: #117eeb;
-  border-color: #117eeb;
+  background-color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
 }
 
 .form-check-input:focus {
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   box-shadow: 0 0 0 0.2rem rgba(17, 126, 235, 0.25);
 }
 

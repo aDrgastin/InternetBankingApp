@@ -17,7 +17,7 @@ main {
     flex-grow: 1;
     /*margin-left: 250px;*/
     transition: width .3s ease-in-out;
-    background-color: #f4f6f7;
+    background-color: var(--main-bg);
     overflow-y: auto;
 }
 

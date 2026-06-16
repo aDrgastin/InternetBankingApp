@@ -23,7 +23,7 @@
 .form-control:focus,
 .form-select:focus {
   background-color: #243447;
-  border-color: #117eeb;
+  border-color: var(--accent-clr-light);
   color: #E5E7EB;
   box-shadow: 0 0 0 3px rgba(17, 126, 235, 0.2);
   outline: none;
@@ -45,7 +45,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Dropdown options */
 .form-select option {
-  background-color: #1e2f3d;
+  background-color: var(--secondary-bg);
   color: #E5E7EB;
 }
 
@@ -87,8 +87,8 @@ textarea.form-control {
 
 /* Submit button */
 .btn-primary {
-  background-color: #117eeb;
-  border-color: #117eeb;
+  background-color: var(--accent-clr-light);
+  border-color: var(--accent-clr-light);
   font-weight: 600;
   border-radius: 8px;
   padding: 0.65rem 1rem;

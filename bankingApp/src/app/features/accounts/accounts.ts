@@ -2,10 +2,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { AccountService } from '../../core/services/account-service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { IbanPipe } from '../../shared/pipes/iban-pipe';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-accounts',
-  imports: [DatePipe, CurrencyPipe, IbanPipe],
+  imports: [DatePipe, CurrencyPipe, IbanPipe, RouterLink],
   templateUrl: './accounts.html',
   styleUrl: './accounts.css',
 })
