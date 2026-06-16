@@ -37,7 +37,7 @@
                         <div class="card-icon accounts-icon">
                             <i class="fa-solid fa-building-columns"></i>
                         </div>
-                        <span class="badge badge-success">Active</span>
+                        <span class="badge badge-success">{{ accounts().filter(a => a.status === 'ACTIVE').length }} Active</span>
                     </div>
                     <h6 class="card-subtitle text-muted mt-1 mb-2">Active Accounts</h6>
                     <h3 class="card-value mb-0">{{ accounts().length }}</h3>

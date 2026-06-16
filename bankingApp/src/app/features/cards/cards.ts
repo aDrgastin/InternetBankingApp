@@ -2,13 +2,13 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CardService } from '../../core/services/card-service';
 import { Card } from './card';
 import { AccountService } from '../../core/services/account-service';
-import { DatePipe, SlicePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { IbanPipe } from '../../shared/pipes/iban-pipe';
 import { MaskCardNoPipe } from '../../shared/pipes/mask-card-no-pipe';
 
 @Component({
   selector: 'app-cards',
-  imports: [DatePipe, SlicePipe, IbanPipe, MaskCardNoPipe, TitleCasePipe],
+  imports: [DatePipe, IbanPipe, MaskCardNoPipe, TitleCasePipe],
   templateUrl: './cards.html',
   styleUrl: './cards.css',
 })
