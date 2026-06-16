@@ -7,6 +7,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { Cards } from './features/cards/cards';
 
 export const routes: Routes = [
+    { path: '', loadComponent: () => import('./features/welcome/welcome').then(c => c.Welcome) },
     { path: 'login', loadComponent: () => import('./features/auth/login/login').then(c => c.Login) },
     { path: 'register', loadComponent: () => import('./features/auth/register/register').then(c => c.Register) },
     { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
