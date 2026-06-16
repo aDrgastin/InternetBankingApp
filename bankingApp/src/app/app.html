@@ -1,8 +1,4 @@
-<!--<app-navbar></app-navbar>-->
 <app-sidebar [class.collapsed]="isSidebarCollapsed()" [isSidebarCollapsed]="isSidebarCollapsed()" (sidebarToggle)="onSidebarToggle()"></app-sidebar>
 <main (click)="collapseSidebar()">
-  <div class="content-wrapper">
-    <router-outlet />
-  </div>
+  <router-outlet />
 </main>
-<!--<app-footer></app-footer>-->

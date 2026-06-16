@@ -1,4 +1,4 @@
-<div class="cards-page">
+<div class="content-wrapper">
     <!-- Page Header -->
     <div class="page-header d-flex align-items-center justify-content-between mb-4">
         <div>
@@ -261,41 +261,41 @@
             </div>
         }
     </div>
-</div>
 
-<!-- Confirm Modal -->
-@if (showConfirmModal()) {
-    <div class="modal-backdrop-custom" (click)="cancelAction()"></div>
-    <div class="confirm-modal">
-        <div class="confirm-modal-header">
-            <i
-                class="fa-solid me-2"
-                [class.fa-ban]="pendingAction()?.action === 'BLOCK'"
-                [class.fa-circle-check]="pendingAction()?.action === 'UNBLOCK'"
-                [style.color]="pendingAction()?.action === 'BLOCK' ? '#EF4444' : '#10B981'">
-            </i>
-            {{ pendingAction()?.action === 'BLOCK' ? 'Block Card' : 'Unblock Card' }}
+    <!-- Confirm Modal -->
+    @if (showConfirmModal()) {
+        <div class="modal-backdrop-custom" (click)="cancelAction()"></div>
+        <div class="confirm-modal">
+            <div class="confirm-modal-header">
+                <i
+                    class="fa-solid me-2"
+                    [class.fa-ban]="pendingAction()?.action === 'BLOCK'"
+                    [class.fa-circle-check]="pendingAction()?.action === 'UNBLOCK'"
+                    [style.color]="pendingAction()?.action === 'BLOCK' ? '#EF4444' : '#10B981'">
+                </i>
+                {{ pendingAction()?.action === 'BLOCK' ? 'Block Card' : 'Unblock Card' }}
+            </div>
+            <p class="confirm-modal-body">
+                @if (pendingAction()?.action === 'BLOCK') {
+                    Are you sure you want to <strong>block</strong> card ending in
+                    <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
+                    All transactions will be declined.
+                } @else {
+                    Are you sure you want to <strong>unblock</strong> card ending in
+                    <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
+                    It will be active for transactions again.
+                }
+            </p>
+            <div class="confirm-modal-actions">
+                <button class="btn btn-sm btn-secondary" (click)="cancelAction()">Cancel</button>
+                <button
+                    class="btn btn-sm"
+                    [class.action-btn-danger]="pendingAction()?.action === 'BLOCK'"
+                    [class.action-btn-primary]="pendingAction()?.action === 'UNBLOCK'"
+                    (click)="confirmAction()">
+                    Confirm
+                </button>
+            </div>
         </div>
-        <p class="confirm-modal-body">
-            @if (pendingAction()?.action === 'BLOCK') {
-                Are you sure you want to <strong>block</strong> card ending in
-                <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
-                All transactions will be declined.
-            } @else {
-                Are you sure you want to <strong>unblock</strong> card ending in
-                <strong>{{ pendingAction()?.card?.number?.slice(-4) }}</strong>?
-                It will be active for transactions again.
-            }
-        </p>
-        <div class="confirm-modal-actions">
-            <button class="btn btn-sm btn-secondary" (click)="cancelAction()">Cancel</button>
-            <button
-                class="btn btn-sm"
-                [class.action-btn-danger]="pendingAction()?.action === 'BLOCK'"
-                [class.action-btn-primary]="pendingAction()?.action === 'UNBLOCK'"
-                (click)="confirmAction()">
-                Confirm
-            </button>
-        </div>
-    </div>
-}
+    }
+</div>

@@ -2,8 +2,7 @@
   display: block;
 }
 
-.cards-page {
-  padding: 1.5rem;
+.content-wrapper {
   min-height: 100vh;
   /*background: #1a252f;*/
   /*color: #E5E7EB;*/

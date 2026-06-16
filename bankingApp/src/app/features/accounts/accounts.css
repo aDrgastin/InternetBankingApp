@@ -2,8 +2,7 @@
   display: block;
 }
 
-.accounts-container {
-  padding: 2rem;
+.content-wrapper {
   background-color: #f8f9fa;
   min-height: 100vh;
 }

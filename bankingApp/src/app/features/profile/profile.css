@@ -2,8 +2,8 @@
   display: block;
 }
 
-.profile-container {
-  padding: 2rem;
+.content-wrapper {
+  /*padding: 2rem;*/
   background-color: #f8f9fa;
   min-height: 100vh;
 }
