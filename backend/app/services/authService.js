@@ -103,3 +103,7 @@ export async function updateUser(id, updatedUser) {
         throw err;
     }
 }
+
+export async function getAllUsers() {
+    return await authRepository.getAllUsers();
+}

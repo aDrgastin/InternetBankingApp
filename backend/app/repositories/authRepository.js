@@ -77,3 +77,19 @@ export async function updateUser(id, updatedUser) {
         conn?.release();
     }
 }
+
+export async function getAllUsers() {
+    let conn;
+    try {
+        conn = await dbPool.getConnection();
+        let [rows] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role, created_at AS createdAt
+            FROM User
+            ORDER BY createdAt DESC`);
+        return rows;
+    } catch (err) {
+        console.error('Error while fetching all users from the database:', err);
+        throw err;
+    } finally {
+        conn?.release();
+    }
+}

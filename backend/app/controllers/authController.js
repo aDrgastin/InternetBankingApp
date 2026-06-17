@@ -74,3 +74,16 @@ export async function update(req, res) {
         return res.status(500).end();
     }
 }
+
+export async function getAllUsers(req, res) {
+    try {
+        const users = await authService.getAllUsers();
+        return res.json({ status: 'SUCCESS', users });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
+        console.error('Unknown error while fetching all users:', err);
+        return res.status(500).end();
+    }
+}
