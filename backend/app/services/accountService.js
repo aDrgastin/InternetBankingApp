@@ -37,12 +37,12 @@ export async function getAccountByIban(iban, requestingUserId, requestingUserRol
 
 export async function createAccount(userId, type) {
     try {
-        if ((await accountRepository.getAccountTypes()).includes(type)) {
+        if (!(await accountRepository.getAccountTypes()).includes(type)) {
             const e = new Error('UNKNOWN_ENUM');
             e.statusCode = 400;
             throw e;
         }
-        let iban = 'HR1234567' + Math.floor(Math.random() * 1e10).toString().padStart(10, '0');
+        let iban = 'HR123456789' + Math.floor(Math.random() * 1e10).toString().padStart(10, '0');
         const newAccount = await accountRepository.createAccount(iban, userId, type);
         return newAccount;
     } catch (err) {

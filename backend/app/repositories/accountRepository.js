@@ -101,7 +101,7 @@ export async function getAccountTypes() {
     try {
         conn = await dbPool.getConnection();
         let [rows] = await conn.execute(`SELECT name FROM AccountType`);
-        return rows;
+        return rows.map(r => r.name);
     } catch (err) {
         console.error('Error while fetching account types:', err);
         throw err;
