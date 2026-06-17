@@ -4,7 +4,7 @@ export async function fetchUserById(id) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        const [rows] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, role, created_at AS createdAt
+        const [rows] = await conn.execute(`SELECT id, pin, username, first_name AS firstName, last_name AS lastName, email, password, salt, role, created_at AS createdAt
             FROM User
             WHERE id = ?`, [id]);
             return rows[0] ?? null;
@@ -88,6 +88,19 @@ export async function getAllUsers() {
         return rows;
     } catch (err) {
         console.error('Error while fetching all users from the database:', err);
+        throw err;
+    } finally {
+        conn?.release();
+    }
+}
+
+export async function updatePassword(userId, newHash, newSalt) {
+    let conn;
+    try {
+        conn = await dbPool.getConnection();
+        await conn.execute(`UPDATE User SET password = ?, salt = ? WHERE id = ?`, [newHash, newSalt, userId]);
+    } catch (err) {
+        console.error('Error while changing user password in database:', err);
         throw err;
     } finally {
         conn?.release();

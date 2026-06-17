@@ -8,5 +8,6 @@ authRouter.get('/users', verifyToken, requireRole('ADMIN', 'MOD'), authControlle
 authRouter.post('/login', authController.login);
 authRouter.post('/register', authController.register);
 authRouter.put('/:id', verifyToken, requireSelfOrRole('ADMIN', 'MOD'), authController.update);
+authRouter.patch('/:id/password', verifyToken, requireSelfOrRole('ADMIN', 'MOD'), authController.changePassword);
 
 export default authRouter;

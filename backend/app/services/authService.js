@@ -107,3 +107,24 @@ export async function updateUser(id, updatedUser) {
 export async function getAllUsers() {
     return await authRepository.getAllUsers();
 }
+
+export async function changePassword(userId, currentPassword, newPassword, requesterId) {
+    const user = await authRepository.fetchUserById(userId);
+    if (!user) {
+        const err = new Error('USER_NOT_FOUND');
+        err.statusCode = 404;
+        throw err;
+    }
+    
+    if (requesterId === userId) {
+        const hash = crypto.pbkdf2Sync(currentPassword, user.salt, 100000, 64, 'sha512').toString('hex');
+        if (hash !== user.password) {
+            const e = new Error('WRONG_PASSWORD');
+            e.statusCode = 401;
+            throw e;
+        }
+    }
+    const newSalt = crypto.randomBytes(16).toString('hex');
+    const newHash = crypto.pbkdf2Sync(newPassword, newSalt, 100000, 64, 'sha512').toString('hex');
+    await authRepository.updatePassword(userId, newHash, newSalt);
+}

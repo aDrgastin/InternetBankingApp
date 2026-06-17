@@ -88,3 +88,23 @@ export async function getAllUsers(req, res) {
         return res.status(500).end();
     }
 }
+
+export async function changePassword(req, res) {
+    const userId = parseId(req.params.id);
+    if (!userId) return res.status(400).json({ status: 'INVALID_ID' });
+    const { currentPassword, newPassword } = req.body ?? {};
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ status: 'MISSING_DATA' });
+    }
+
+    try {
+        await authService.changePassword(userId, currentPassword, newPassword, res.locals.token.id);
+        return res.json({ status: 'SUCCESS' });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
+        console.error('Unknown error while changing password:', err);
+        return res.status(500).end();
+    }
+}
