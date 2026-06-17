@@ -10,8 +10,10 @@ import { AuthService } from '../../../core/services/auth-service';
 })
 export class Sidebar {
   protected readonly authService = inject(AuthService);
+
   isSidebarCollapsed = input<boolean>(false);
   protected sidebarToggle = output();
+  protected currentUser = this.authService.user;
 
   toggleSidebar() {
     this.sidebarToggle.emit();

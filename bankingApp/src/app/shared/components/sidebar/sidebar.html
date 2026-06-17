@@ -12,18 +12,20 @@
                     <i class="fa-solid fa-house" [class.collapsed]="isSidebarCollapsed()"></i>
                     <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Dashboard</span>
                 </a></li>
-                <li><a href="#" [routerLink]="['/accounts']" routerLinkActive="active" class="sidebar-item" title="Accounts">
-                    <i class="fa-solid fa-wallet" [class.collapsed]="isSidebarCollapsed()"></i>
-                    <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Accounts</span>
-                </a></li>
-                <li><a href="#" [routerLink]="['/transactions']" routerLinkActive="active" class="sidebar-item" title="Transactions">
-                    <i class="fa-solid fa-arrow-right-arrow-left" [class.collapsed]="isSidebarCollapsed()"></i>
-                    <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Transactions</span>
-                </a></li>
-                <li><a href="#" [routerLink]="['/cards']" routerLinkActive="active" class="sidebar-item" title="Cards">
-                    <i class="fa-solid fa-credit-card" [class.collapsed]="isSidebarCollapsed()"></i>
-                    <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Cards</span>
-                </a></li>
+                @if (currentUser()?.role === 'USER') {
+                    <li><a href="#" [routerLink]="['/accounts']" routerLinkActive="active" class="sidebar-item" title="Accounts">
+                        <i class="fa-solid fa-wallet" [class.collapsed]="isSidebarCollapsed()"></i>
+                        <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Accounts</span>
+                    </a></li>
+                    <li><a href="#" [routerLink]="['/transactions']" routerLinkActive="active" class="sidebar-item" title="Transactions">
+                        <i class="fa-solid fa-arrow-right-arrow-left" [class.collapsed]="isSidebarCollapsed()"></i>
+                        <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Transactions</span>
+                    </a></li>
+                    <li><a href="#" [routerLink]="['/cards']" routerLinkActive="active" class="sidebar-item" title="Cards">
+                        <i class="fa-solid fa-credit-card" [class.collapsed]="isSidebarCollapsed()"></i>
+                        <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Cards</span>
+                    </a></li>
+                }
                 <li class="profile-link"><a href="#" [routerLink]="['/profile']" routerLinkActive="active" class="sidebar-item" title="Profile">
                     <i class="fa-regular fa-circle-user" [class.collapsed]="isSidebarCollapsed()"></i>
                     <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Profile</span>
