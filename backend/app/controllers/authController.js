@@ -1,4 +1,5 @@
 import * as authService from '../services/authService.js'
+import { parseId } from '../utils/utils.js'
 
 export async function login(req, res) {
     const { username, password } = req.body ?? {};
@@ -54,8 +55,8 @@ export async function me(req, res) {
 }
 
 export async function update(req, res) {
-    const id = req.params.id;
-    if (!(/^\d+$/).test(id)) {
+    const id = parseId(req.params.id);
+    if (!id) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
     const user = req.body ?? {};

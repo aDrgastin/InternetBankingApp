@@ -1,4 +1,5 @@
 import * as cardService from "../services/cardService.js";
+import { parseId } from "../utils/utils.js";
 
 export async function getMyCards(req, res) {
     const userId = res.locals.token.id;
@@ -15,8 +16,8 @@ export async function getMyCards(req, res) {
 }
 
 export async function getCardById(req, res) {
-    const cardId = req.params.id;
-    if (!(/^\d+$/).test(cardId)) {
+    const cardId = parseId(req.params.id);
+    if (!cardId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -33,8 +34,8 @@ export async function getCardById(req, res) {
 }
 
 export async function getCardsByUserId(req, res) {
-    const userId = req.params.id;
-    if (!(/^\d+$/).test(userId)) {
+    const userId = parseId(req.params.id);
+    if (!userId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -51,7 +52,8 @@ export async function getCardsByUserId(req, res) {
 }
 
 export async function createCard(req, res) {
-    const { accountId, type } = req.body;
+    const { type } = req.body;
+    const accountId = parseId(req.body.accountId);
     if (!accountId) {
         return res.status(400).json({ status: 'MISSING_ID' });
     }
@@ -72,8 +74,8 @@ export async function createCard(req, res) {
 }
 
 export async function updateCardStatus(req, res) {
-    const cardId = req.params.cardId;
-    if (!(/^\d+$/).test(cardId)) {
+    const cardId = parseId(req.params.cardId);
+    if (!cardId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
     const { status } = req.body;

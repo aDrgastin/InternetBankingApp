@@ -1,4 +1,5 @@
 import * as accountService from '../services/accountService.js'
+import { parseId } from '../utils/utils.js'
 
 export async function getMyAccounts(req, res) {
     const userId = res.locals.token.id;
@@ -12,8 +13,8 @@ export async function getMyAccounts(req, res) {
 }
 
 export async function getAccountsByUserId(req, res) {
-    const userId = req.params.userId;
-    if (!(/^\d+$/).test(userId)) {
+    const userId = parseId(req.params.userId);
+    if (!userId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -27,8 +28,8 @@ export async function getAccountsByUserId(req, res) {
 }
 
 export async function getAccountById(req, res) {
-    const accountId = req.params.accountId;
-    if (!(/^\d+$/).test(accountId)) {
+    const accountId = parseId(req.params.accountId);
+    if (!accountId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -60,9 +61,12 @@ export async function getAccountByIban(req, res) {
 }
 
 export async function createAccount(req, res) {
-    const { userId, type } = req.body;
-    if (!userId) return res.status(400).json({ status: 'MISSING_ID' });
-    if (!type) return res.status(400).json({ status: 'MISSING_TYPE' });
+    const { type } = req.body;
+    const userId = parseId(req.body.userId);
+    if (!userId) {
+        return res.status(400).json({ status: 'INVALID_ID' });
+    }
+    if (!type) return res.status(400).json({ status: 'MISSING_DATA' });
 
     try {
         const account = await accountService.createAccount(userId, type);
@@ -77,8 +81,8 @@ export async function createAccount(req, res) {
 }
 
 export async function updateAccountStatus(req, res) {
-    const accountId = req.params.accountId;
-    if (!(/^\d+$/).test(accountId)) {
+    const accountId = parseId(req.params.accountId);
+    if (!accountId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
     const { status } = req.body;

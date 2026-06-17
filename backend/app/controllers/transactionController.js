@@ -1,4 +1,5 @@
 import * as transactionService from '../services/transactionService.js'
+import { parseId } from '../utils/utils.js'
 
 export async function getMyTransactions(req, res) {
     const userId = res.locals.token.id;
@@ -12,8 +13,8 @@ export async function getMyTransactions(req, res) {
 }
 
 export async function getTransactionsByAccId(req, res) {
-    const accountId = req.params.id;
-    if (!(/^\d+$/).test(accountId)) {
+    const accountId = parseId(req.params.id);
+    if (!accountId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -30,8 +31,8 @@ export async function getTransactionsByAccId(req, res) {
 }
 
 export async function getTransactionsByUserId(req, res) {
-    const userId = req.params.userId;
-    if (!(/^\d+$/).test(userId)) {
+    const userId = parseId(req.params.userId);
+    if (!userId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
 
@@ -45,8 +46,10 @@ export async function getTransactionsByUserId(req, res) {
 }
 
 export async function transferFunds(req, res) {
-    const { fromAccId, toIban, amount, description } = req.body;
-    if (!fromAccId || !toIban || !amount) {
+    const fromAccId = parseId(req.body.fromAccId);
+    const amount = Number(req.body.amount);
+    const { toIban, description } = req.body;
+    if (!fromAccId || !Number.isFinite(amount) || amount <= 0 || !toIban) {
         return res.status(400).json({ status: 'MISSING_DATA' });
     }
     
@@ -63,8 +66,10 @@ export async function transferFunds(req, res) {
 }
 
 export async function posPayout(req, res) {
-    const { fromAccId, toIban, amount, description } = req.body;
-    if (!fromAccId || !toIban || !amount) {
+    const fromAccId = parseId(req.body.fromAccId);
+    const amount = Number(req.body.amount);
+    const { toIban, description } = req.body;
+    if (!fromAccId || !Number.isFinite(amount) || amount <= 0 || !toIban) {
         return res.status(400).json({ status: 'MISSING_DATA' });
     }
     
@@ -81,12 +86,13 @@ export async function posPayout(req, res) {
 }
 
 export async function withdrawFunds(req, res) {
-    const accId = req.params.accId;
-    if (!(/^\d+$/).test(accId)) {
+    const accId = parseId(req.params.accId);
+    if (!accId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
-    const { amount, description } = req.body;
-    if (!amount) {
+    const { description } = req.body;
+    const amount = Number(req.body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
         return res.status(400).json({ status: 'MISSING_DATA' });
     }
 
@@ -103,12 +109,13 @@ export async function withdrawFunds(req, res) {
 }
 
 export async function depositFunds(req, res) {
-    const accId = req.params.accId;
-    if (!(/^\d+$/).test(accId)) {
+    const accId = parseId(req.params.accId);
+    if (!accId) {
         return res.status(400).json({ status: 'INVALID_ID' });
     }
-    const { amount, description } = req.body;
-    if (!amount) {
+    const { description } = req.body;
+    const amount = Number(req.body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
         return res.status(400).json({ status: 'MISSING_DATA' });
     }
 

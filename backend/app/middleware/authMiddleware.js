@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import config from '../../config.js'
+import { parseId } from '../utils/utils.js'
 
 /**
  * Extracts token from authorization header and stores decoded token in res.locals.token
@@ -39,7 +40,7 @@ export function verifyToken(req, res, next) {
  */
 export function requireRole(...allowedRoles) {
     return (req, res, next) => {
-        if (!res.locals) {
+        if (!res.locals.token) {
             return res.status(401).json({ status: 'NO_TOKEN' });
         }
         if (!allowedRoles.includes(res.locals.token.role)) {
@@ -57,14 +58,17 @@ export function requireRole(...allowedRoles) {
  */
 export function requireSelfOrRole(...allowedRoles) {
     return (req, res, next) => {
-        const resourceId = req.params.id;
-        const requesterId = res.locals.token?.id;
+        const resourceId = parseId(req.params.id);
+        const token = res.locals.token;
 
-        if (!res.locals) {
+        if (!resourceId) {
+            return res.status(400).json({ status: 'INVALID_ID' });
+        }
+        if (!token) {
             return res.status(401).json({ status: 'NO_TOKEN' });
         }
-        if (resourceId == requesterId) return next();
-        if (allowedRoles.includes(res.locals.token.role)) return next();
+        if (resourceId === token.id) return next();
+        if (allowedRoles.includes(token.role)) return next();
         return res.status(403).json({ status: 'FORBIDDEN' });
     };
 }
