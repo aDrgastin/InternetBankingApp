@@ -15,19 +15,18 @@ export class Profile {
 
     protected user = this.authService.user;
     protected editMode: boolean = false;
-    editedUser: User = { ...this.user() ?? { id: 0, pin: '', username: '', firstName: '', lastName: '', email: '', role: 'USER', createdAt: new Date } };
-    passwordChange = {
+    protected editedUser: User = { ...this.user() ?? { id: 0, pin: '', username: '', firstName: '', lastName: '', email: '', role: 'USER', createdAt: new Date } };
+    protected passwordChange = {
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
     };
-    showPasswordSection: boolean = false;
+    protected showPasswordSection: boolean = false;
     protected pinVisible = signal(false);
     protected errorMsg = signal('');
 
     toggleEditMode() {
         if (this.editMode) {
-            // Cancel edit - reset changes
             this.editedUser = { ...this.user() ?? { id: 0, pin: '', username: '', firstName: '', lastName: '', email: '', role: 'USER', createdAt: new Date } };
         }
         this.editMode = !this.editMode;
@@ -44,7 +43,7 @@ export class Profile {
                 alert(`Failed to update profile!\n${err.message}`);
                 this.errorMsg.set(err.message);
                 this.editMode = false;
-                console.error('Error while updating profile:', err);
+                console.error('Error while updating profile:', err.cause);
             }
         });
     }
@@ -61,11 +60,17 @@ export class Profile {
             this.errorMsg.set('Passwords do not match');
             return;
         }
-        // TODO: Change password via API
-        console.log('Changing password');
-        alert('Password changed successfully!');
-        this.resetPasswordForm();
-        this.showPasswordSection = false;
+        this.authService.changePassword(this.user()?.id ?? 0, this.passwordChange.currentPassword, this.passwordChange.newPassword).subscribe({
+            next: () => {
+                this.resetPasswordForm();
+                this.showPasswordSection = false;
+                alert('Password changed successfully!');
+            },
+            error: (err: Error) => {
+                console.error('Error while changing password:', err.cause);
+                this.errorMsg.set(err.message);
+            }
+        });
     }
 
     resetPasswordForm() {

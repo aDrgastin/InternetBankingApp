@@ -158,6 +158,20 @@ export class AuthService {
         );
     }
 
+    changePassword(userId: number, currentPassword: string, newPassword: string) {
+        return this.http.patch<{ status: string }>(`${this.API_ENDPOINT}/${userId}/password`, { currentPassword, newPassword }).pipe(
+            catchError((err: HttpErrorResponse) => {
+                const status = err.error?.status;
+                let message = 'Failed to change password';
+                if (status === 'INVALID_ID') message = 'Invalid id';
+                else if (status === 'MISSING_DATA') message = 'Please fill in all fields';
+                else if (status === 'USER_NOT_FOUND') message = 'User not found';
+                else if (status === 'WRONG_PASSWORD') message = 'Wrong password';
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
     private mapUser(user: User): User {
         return {
             ...user,
