@@ -6,6 +6,9 @@ export async function getMyCards(req, res) {
         const cards = await cardService.getCardsByUserId(userId);
         return res.json({ status: 'SUCCESS', cards });
     } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
         console.error('Error while fetching my cards:', err);
         return res.status(500).end();
     }
@@ -25,6 +28,24 @@ export async function getCardById(req, res) {
             return res.status(err.statusCode).json({ status: err.message });
         }
         console.error('Unknown error while fetching card by id:', err);
+        return res.status(500).end();
+    }
+}
+
+export async function getCardsByUserId(req, res) {
+    const userId = req.params.id;
+    if (!(/^\d+$/).test(userId)) {
+        return res.status(400).json({ status: 'INVALID_ID' });
+    }
+
+    try {
+        const cards = await cardService.getCardsByUserId(userId);
+        return res.json({ status: 'SUCCESS', cards });
+    } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ status: err.message });
+        }
+        console.error('Error while fetching cards by user id:', err);
         return res.status(500).end();
     }
 }

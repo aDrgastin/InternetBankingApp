@@ -5,6 +5,7 @@ import * as cardController from "../controllers/cardController.js";
 const cardRouter = express.Router();
 cardRouter.get('/my', verifyToken, cardController.getMyCards);
 cardRouter.get('/:id', verifyToken, cardController.getCardById);
+cardRouter.get('/user/:id', verifyToken, requireRole('ADMIN', 'MOD'), cardController.getCardsByUserId);
 cardRouter.post('', verifyToken, requireRole('ADMIN', 'MOD'), cardController.createCard);
 cardRouter.patch('/:cardId/status', verifyToken, cardController.updateCardStatus);
 

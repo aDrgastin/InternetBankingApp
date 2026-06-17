@@ -1,7 +1,13 @@
 import * as cardRepository from "../repositories/cardRepository.js";
+import * as authRepository from "../repositories/authRepository.js";
 import crypto from "node:crypto";
 
 export async function getCardsByUserId(userId) {
+    if (!(await authRepository.fetchUserById(userId))) {
+        const e = new Error('USER_NOT_EXISTS');
+        e.statusCode = 404;
+        throw e;
+    }
     return await cardRepository.getCardsByUserId(userId);
 }
 
