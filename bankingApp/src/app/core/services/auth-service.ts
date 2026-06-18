@@ -23,6 +23,7 @@ export class AuthService {
     private readonly currentUser = signal<User | null>(null);
     readonly user = this.currentUser.asReadonly();
     readonly isAuthenticated = computed(() => this.currentUser() !== null);
+    readonly isPrivileged = computed(() => ['ADMIN', 'MOD'].includes(this.currentUser()?.role ?? ''));
 
     login(username: string, password: string) {
         return this.http.post<AuthResponse>(`${this.API_ENDPOINT}/login`, { username, password }).pipe(
@@ -138,7 +139,9 @@ export class AuthService {
                 return this.mapUser(res.user);
             }),
             tap(user => {
-                this.currentUser.set(user);
+                if (user.id === this.currentUser()?.id) {
+                    this.currentUser.set(user);
+                }
             }),
             catchError((err: HttpErrorResponse) => {
                 const status = err.error?.status;
@@ -167,6 +170,24 @@ export class AuthService {
                 else if (status === 'MISSING_DATA') message = 'Please fill in all fields';
                 else if (status === 'USER_NOT_FOUND') message = 'User not found';
                 else if (status === 'WRONG_PASSWORD') message = 'Wrong password';
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
+    getAllUsers() {
+        return this.http.get<{ status: string, users: any[] }>(`${this.API_ENDPOINT}/users`).pipe(
+            map(res => {
+                if (!Array.isArray(res.users)) throw new Error('INVALID_RESPONSE');
+                return res.users.map(u => this.mapUser(u));
+            }),
+            catchError(err => {
+                const status = err.error?.status;
+                let message = 'An unexpected error occured';
+                if (status === 'INVALID_RESPONSE') {
+                    console.error('Unexpected API response:', err);
+                    message = 'Unexpected response';
+                }
                 return throwError(() => new Error(message, { cause: err }));
             })
         );
