@@ -9,6 +9,7 @@ import authRoutes from './app/routes/authRoutes.js'
 import transactionRoutes from './app/routes/transactionRoutes.js'
 import accountRoutes from './app/routes/accountRoutes.js'
 import cardRoutes from './app/routes/cardRoutes.js'
+import auditRoutes from './app/routes/auditRoutes.js'
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/cards', cardRoutes);
+app.use('/api/audit', auditRoutes);
 
 app.use((req, res) => {
     res.status(404).end('Page not found!');
