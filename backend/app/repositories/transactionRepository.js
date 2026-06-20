@@ -4,10 +4,16 @@ export async function getAllByAccountId(accountId) {
     let conn;
     try {
         conn = await dbPool.getConnection();
-        let [rows] = await conn.execute(`SELECT t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
+        let [rows] = await conn.execute(`SELECT t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description,
+            CASE
+                WHEN tt.name = 'DEPOSIT' THEN 'CREDIT'
+                WHEN tt.name IN ('WITHDRAWAL', 'FEE') THEN 'DEBIT'
+                WHEN from_account_id = ? THEN 'DEBIT'
+                ELSE 'CREDIT'
+            END AS direction
             FROM Transaction t JOIN TransactionType tt ON t.type_id = tt.id
             WHERE from_account_id = ? OR to_account_id = ?
-            ORDER BY timestamp DESC;`, [accountId, accountId]);
+            ORDER BY timestamp DESC;`, [accountId, accountId, accountId]);
         return rows;
     } catch (err) {
         console.error('Error while fetching transactions by account id from database:', err);
