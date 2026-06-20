@@ -52,9 +52,11 @@ export class CardService {
                 return this.mapCard(res.card);
             }),
             tap(card => {
-                this.cardsSignal.update(cards =>
-                    cards.map(c => c.id === card.id ? card : c)
-                );
+                if (this.cardsSignal().some(c => c.id === card.id)) {
+                    this.cardsSignal.update(cards =>
+                        cards.map(c => c.id === card.id ? card : c)
+                    );
+                }
             }),
             catchError((err: HttpErrorResponse) => {
                 const status = err.error?.status;
@@ -63,6 +65,40 @@ export class CardService {
                 else if (status === 'INVALID_ID') message = 'Invalid card';
                 else if (status === 'NOT_FOUND') message = 'Card not found';
                 else if (status === 'INVALID_STATUS' || status === 'UNKNOWN_ENUM') message = 'Invalid status value';
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
+    getCardsByUserId(userId: number) {
+        return this.http.get<{ status: string, cards: any[] }>(`${this.API_ENDPOINT}/user/${userId}`).pipe(
+            map(res => {
+                if (!Array.isArray(res.cards)) throw new Error('INVALID_RESPONSE');
+                return res.cards.map(c => this.mapCard(c));
+            }),
+            catchError((err: HttpErrorResponse) => {
+                const status = err.error?.status;
+                let message = 'Failed to load user cards';
+                if (status === 'UNAUTHORIZED') message = 'Session expired';
+                else if (status === 'USER_NOT_EXISTS') message = 'User doesnt exist';
+                return throwError(() => new Error(message, { cause: err }));
+            })
+        );
+    }
+
+    getCardById(cardId: number) {
+        return this.http.get<{ status: string, card: Card }>(`${this.API_ENDPOINT}/${cardId}`).pipe(
+            map(res => {
+                if (!res.card) throw new Error('INVALID_RESPONSE');
+                return this.mapCard(res.card);
+            }),
+            catchError((err: HttpErrorResponse) => {
+                const status = err.error?.status;
+                let message = 'Failed to load cards';
+                if (status === 'UNAUTHORIZED') message = 'Session expired';
+                else if (status === 'INVALID_ID') message = 'Invalid id';
+                else if (status === 'NOT_FOUND') message = 'Not found';
+                else if (status === 'FORBIDDEN') message = 'Forbidden';
                 return throwError(() => new Error(message, { cause: err }));
             })
         );
