@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AccountService } from '../../core/services/account-service';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { IbanPipe } from '../../shared/pipes/iban-pipe';
 import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-accounts',
-  imports: [DatePipe, CurrencyPipe, IbanPipe, RouterLink],
+  imports: [DatePipe, CurrencyPipe, IbanPipe, RouterLink, TitleCasePipe],
   templateUrl: './accounts.html',
   styleUrl: './accounts.css',
 })
@@ -30,7 +30,7 @@ export class Accounts implements OnInit {
     }
 
     getStatusBadgeClass(status: string): string {
-        return status === 'ACTIVE' ? 'badge-success' : 'badge-secondary';
+        return status === 'ACTIVE' ? 'badge-success' : 'badge-danger';
     }
 
     selectAccount(accountId: number): void {

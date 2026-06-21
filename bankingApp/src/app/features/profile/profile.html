@@ -125,7 +125,7 @@
                                 >
                             </div>
                         </div>
-                        <div class="row mb-3 row-gap-1">
+                        <div class="row mb-3 row-gap-1 justify-content-center">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold" for="pin">PIN</label>
                                 <div class="input-group">
@@ -150,18 +150,6 @@
                                     </button>
                                 </div>
                                 <small class="text-muted">11-digit PIN</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold" for="role">Role</label>
-                                <input 
-                                type="text" 
-                                class="form-control form-control-plaintext"
-                                id="role"
-                                [value]="user()?.role"
-                                readonly
-                                disabled
-                                >
-                                <small class="text-muted">Contact admin to change role</small>
                             </div>
                         </div>
 
@@ -202,35 +190,53 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold" for="new-password">New Password</label>
-                                <input 
-                                    type="password" 
-                                    class="form-control"
-                                    id="new-password"
-                                    [(ngModel)]="passwordChange.newPassword"
-                                    minlength="4"
-                                    name="newPassword"
-                                    required
-                                    placeholder="Enter new password"
-                                >
+                                <div class="input-group">
+                                    <input
+                                        [type]="passwordVisible() ? 'text' : 'password'"
+                                        class="form-control"
+                                        id="new-password"
+                                        [(ngModel)]="passwordChange.newPassword"
+                                        minlength="4"
+                                        name="newPassword"
+                                        required
+                                        placeholder="Enter new password"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        (click)="passwordVisible.set(!passwordVisible())"
+                                        [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'">
+                                        <i class="fa-solid" [class.fa-eye]="!passwordVisible()" [class.fa-eye-slash]="passwordVisible()"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold" for="confirm-password">Confirm New Password</label>
-                                <input 
-                                    type="password" 
-                                    class="form-control"
-                                    id="confirm-password"
-                                    [(ngModel)]="passwordChange.confirmPassword"
-                                    minlength="4"
-                                    name="confirmPassword"
-                                    required
-                                    placeholder="Confirm new password"
-                                >
+                                <div class="input-group">
+                                    <input
+                                        [type]="confirmPasswordVisible() ? 'text' : 'password'"
+                                        class="form-control"
+                                        id="confirm-password"
+                                        [(ngModel)]="passwordChange.confirmPassword"
+                                        minlength="4"
+                                        name="confirmPassword"
+                                        required
+                                        placeholder="Confirm new password"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        (click)="confirmPasswordVisible.set(!confirmPasswordVisible())"
+                                        [attr.aria-label]="confirmPasswordVisible() ? 'Hide password' : 'Show password'">
+                                        <i class="fa-solid" [class.fa-eye]="!confirmPasswordVisible()" [class.fa-eye-slash]="confirmPasswordVisible()"></i>
+                                    </button>
+                                </div>
                             </div>
                             @if (errorMsg()) {
                                 <p class="alert alert-danger py-2 mt-2">{{ errorMsg() }}</p>
                             }
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary" (click)="changePassword()" [disabled]="!passwordForm.form.valid">
+                                <button type="button" class="btn btn-primary" (click)="changePassword()" [disabled]="!passwordForm.form.valid || passwordChange.newPassword !== passwordChange.confirmPassword">
                                     <i class="fa-solid fa-key me-2"></i>Update Password
                                 </button>
                                 <button type="button" class="btn btn-danger fw-semibold" (click)="togglePasswordSection()">Cancel</button>

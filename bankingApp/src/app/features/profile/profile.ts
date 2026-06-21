@@ -21,6 +21,8 @@ export class Profile {
         newPassword: '',
         confirmPassword: ''
     };
+    protected passwordVisible = signal(false);
+    protected confirmPasswordVisible = signal(false);
     protected showPasswordSection: boolean = false;
     protected pinVisible = signal(false);
     protected errorMsg = signal('');

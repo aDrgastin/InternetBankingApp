@@ -115,12 +115,10 @@
 
 .badge-success {
   background-color: #10B981;
-  color: white;
 }
 
-.badge-secondary {
-  background-color: var(--tertiary-bg);
-  color: white;
+.badge-danger {
+  background-color: #EF4444;
 }
 
 /* Account Actions */
