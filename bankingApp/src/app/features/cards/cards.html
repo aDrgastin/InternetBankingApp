@@ -190,8 +190,7 @@
                             <div class="text-end">
                                 @if (getAccount(card.accountId); as account) {
                                     <div class="card-meta-label">ACCOUNT</div>
-                                    <!--<div class="card-account-ref">{{ account.iban | slice:0:10 }}…</div>-->
-                                    <div class="card-account-ref">{{ account.iban | iban }}</div>
+                                    <div class="card-account-ref">{{ account.iban | slice:0:10 }}…</div>
                                 }
                             </div>
                         </div>
@@ -210,10 +209,10 @@
                 <!-- Expanded Detail Panel -->
                 @if (selectedCard()?.id === card.id) {
                     <div class="detail-panel mt-2">
-                        <!--<div class="detail-row">
-                            <span class="detail-key"><i class="fa-solidfa-hashtag me-1"></i>Card ID</span>
-                            <span class="detail-val">#{{ card.id }}</span>
-                        </div>-->
+                        <div class="detail-row">
+                            <span class="detail-key"><i class="fa-solid fa-hashtag me-1"></i>Card number</span>
+                            <span class="detail-val">{{ card.number | cardNo }}</span>
+                        </div>
                         <div class="detail-row">
                             <span class="detail-key"><i class="fa-solid fa-calendar-plus me-1"></i>Issued</span>
                             <span class="detail-val">{{ card.createdAt | date:'mediumDate' }}</span>
