@@ -135,6 +135,10 @@ button.sidebar-item {
   margin-right: 0;
 }
 
+.sidebar-item-text {
+  white-space: nowrap;
+}
+
 .sidebar-item-text.collapsed {
   display: none;
 }

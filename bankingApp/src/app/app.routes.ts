@@ -16,5 +16,6 @@ export const routes: Routes = [
     { path: 'transactions', component: Transactions, canActivate: [authGuard, roleGuard('USER')] },
     { path: 'cards', component: Cards, canActivate: [authGuard, roleGuard('USER')] },
     { path: 'profile', component: Profile, canActivate: [authGuard] },
+    { path: 'admin', loadComponent: () => import('./features/admin-panel/admin-panel').then(c => c.AdminPanel), canActivate: [authGuard, roleGuard('ADMIN', 'MOD')] },
     { path: '**', redirectTo: '' }
 ];

@@ -1,0 +1,653 @@
+<div class="content-wrapper">
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="admin-header-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+            <h1 class="admin-title mb-0">Admin Panel</h1>
+            <p class="admin-subtitle mb-0">Manage users, accounts and transactions</p>
+        </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="admin-tabs mb-4">
+        <button type="button" class="admin-tab" [class.admin-tab--active]="activeTab() === 'USERS'" (click)="onTabChange('USERS')">
+            <i class="fa-solid fa-users me-2"></i>Users
+        </button>
+        <button type="button" class="admin-tab" [class.admin-tab--active]="activeTab() === 'TRANSACTIONS'" (click)="onTabChange('TRANSACTIONS')">
+            <i class="fa-solid fa-receipt me-2"></i>Transactions
+        </button>
+        <button type="button" class="admin-tab" [class.admin-tab--active]="activeTab() === 'CARDS'" (click)="onTabChange('CARDS')">
+            <i class="fa-solid fa-credit-card me-2"></i>Cards
+        </button>
+        <button type="button" class="admin-tab" [class.admin-tab--active]="activeTab() === 'AUDIT'" (click)="onTabChange('AUDIT')">
+            <i class="fa-solid fa-clipboard-list me-2"></i>Audit logs
+        </button>
+    </div>
+
+    <!-- ── USERS ─────────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'USERS') {
+        <div class="tab-pane">
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" class="form-control" placeholder="Search by name, username or email" (input)="userSearch.set($any($event.target).value)">
+            </div>
+
+            <div class="admin-card">
+                @if (usersLoading()) {
+                    <div class="state-box"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...</div>
+                } @else if (usersError()) {
+                    <div class="state-box state-box--error">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ usersError() }}
+                    </div>
+                } @else if (filteredUsers().length === 0) {
+                    <div class="empty-state"><i class="fa-solid fa-users"></i><p>No users found</p></div>
+                } @else {
+                    <div class="table-responsive">
+                        <table class="table admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Full Name</th>
+                                    <th class="d-none d-sm-table-cell">Username</th>
+                                    <th class="d-none d-md-table-cell">Email</th>
+                                    <th>Role</th>
+                                    <th class="d-none d-lg-table-cell">Member Since</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (user of filteredUsers(); track user.id) {
+                                    <tr [class.row-expanded]="expandedUserId() === user.id">
+                                        <td class="mono text-muted">#{{ user.id }}</td>
+                                        <td class="fw-medium">{{ user.firstName }} {{ user.lastName }}</td>
+                                        <td class="mono d-none d-sm-table-cell">{{ user.username }}</td>
+                                        <td class="text-muted small d-none d-md-table-cell">{{ user.email }}</td>
+                                        <td>
+                                            <span class="role-pill"
+                                            [class.role-pill--admin]="user.role === 'ADMIN'"
+                                            [class.role-pill--mod]="user.role === 'MOD'"
+                                            [class.role-pill--user]="user.role === 'USER'">
+                                                {{ user.role }}
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small d-none d-lg-table-cell">{{ user.createdAt | date:'mediumDate' }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="toggleExpandUser(user.id)">
+                                                <i class="fa-solid me-1"
+                                                    [class.fa-chevron-down]="expandedUserId() !== user.id"
+                                                    [class.fa-chevron-up]="expandedUserId() === user.id"></i>
+                                                Accounts
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    @if (expandedUserId() === user.id) {
+                                        <tr class="sub-row">
+                                            <td colspan="7" class="p-0">
+                                                <div class="sub-panel p-2">
+
+                                                    <div class="sub-panel__header mb-2">
+                                                        <span class="sub-panel__title">
+                                                            <i class="fa-solid fa-building-columns me-2" style="color: #117eeb;"></i>
+                                                            {{ user.firstName }} {{ user.lastName }}'s Accounts
+                                                        </span>
+                                                        <button type="button" class="btn btn-sm btn-primary"
+                                                            (click)="showCreateAccForUser.set(showCreateAccForUser() === user.id ? null : user.id)">
+                                                            <i class="fa-solid fa-plus me-1"></i>Create Account
+                                                        </button>
+                                                    </div>
+
+                                                    @if (showCreateAccForUser() === user.id) {
+                                                        <div class="inline-form">
+                                                            <form [formGroup]="createAccForm" (ngSubmit)="submitCreateAccount(user.id)"
+                                                                class="d-flex align-items-end gap-3 flex-wrap">
+                                                                <div style="min-width: 180px;">
+                                                                    <label class="form-label small mb-1" for="account-type">Account Type</label>
+                                                                    <select class="form-select form-select-sm" id="account-type" formControlName="type">
+                                                                        <option value="CHECKING">Checking</option>
+                                                                        <option value="SAVINGS">Savings</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="d-flex gap-2">
+                                                                    <button type="submit" class="btn btn-sm btn-primary"
+                                                                    [disabled]="createAccForm.invalid">Create</button>
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                    (click)="showCreateAccForUser.set(null)">Cancel</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    }
+
+                                                    @if (expandLoading()) {
+                                                        <div class="state-box">
+                                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading accounts...
+                                                        </div>
+                                                    } @else if (getAccountsForUser(user.id).length === 0) {
+                                                        <div class="empty-state empty-state--sm">
+                                                            <i class="fa-solid fa-credit-card"></i><p class="mb-0">No accounts yet</p>
+                                                        </div>
+                                                    } @else {
+                                                        <div class="table-responsive">
+                                                            <table class="table admin-table admin-table--nested mb-0">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>IBAN</th>
+                                                                        <th>Type</th>
+                                                                        <th class="text-end">Balance</th>
+                                                                        <th>Status</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @for (acc of getAccountsForUser(user.id); track acc.id) {
+                                                                        <tr>
+                                                                            <td class="mono small px-2">{{ acc.iban | iban }}</td>
+                                                                            <td>
+                                                                                <span class="type-badge" [class.type-badge--savings]="acc.type === 'SAVINGS'">{{ acc.type | titlecase }}</span>
+                                                                            </td>
+                                                                            <td class="text-end fw-semibold">{{ acc.balance | currency:'EUR' }}</td>
+                                                                            <td>
+                                                                                <span class="status-badge"
+                                                                                    [class.status-badge--active]="acc.status === 'ACTIVE'"
+                                                                                    [class.status-badge--closed]="acc.status === 'CLOSED'">
+                                                                                    {{ acc.status | titlecase }}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td>
+                                                                                <button type="button" class="btn btn-sm"
+                                                                                    [class.btn-outline-danger]="acc.status === 'ACTIVE'"
+                                                                                    [class.btn-outline-success]="acc.status === 'CLOSED'"
+                                                                                    (click)="toggleAccountStatus(user.id, acc.id, (acc.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE'))">
+                                                                                    {{ acc.status === 'ACTIVE' ? 'Close' : 'Reopen' }}
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- ── TRANSACTIONS ───────────────────────────────────────────────────── -->
+    @if (activeTab() === 'TRANSACTIONS') {
+        <div class="tab-pane">
+
+            <!-- Lookup -->
+            <div class="admin-card mb-4">
+                <div class="admin-card__header">
+                    <i class="fa-solid fa-magnifying-glass me-2" style="color: #117eeb;"></i>View Account Transactions
+                </div>
+                <div class="admin-card__body">
+                    <div class="d-flex gap-2 mb-3" style="max-width: 360px;">
+                        <input type="number" class="form-control form-control-sm" placeholder="Account ID"
+                            min="1"
+                            #accIdInput
+                            (input)="txAccId.set(accIdInput.valueAsNumber || null)"
+                            (keyup.enter)="loadTransactions()">
+                        <button class="btn btn-sm btn-primary text-nowrap" (click)="loadTransactions()" [disabled]="txLoading()">
+                            <i class="fa-solid fa-bolt me-1"></i>Fetch
+                        </button>
+                    </div>
+                    @if (txLoading()) {
+                        <div class="state-box"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...</div>
+                    } @else if (txError()) {
+                        <div class="inline-alert inline-alert--error"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ txError() }}</div>
+                    } @else if (transactions().length === 0 && txAccId()) {
+                        <div class="empty-state empty-state--sm"><i class="fa-solid fa-receipt"></i><p class="mb-0">No transactions found</p></div>
+                    } @else if (transactions().length > 0) {
+                        <div class="table-responsive">
+                            <table class="table admin-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction</th>
+                                        <th class="d-none d-md-table-cell">Account</th>
+                                        <th class="d-none d-lg-table-cell">Date</th>
+                                        <th class="d-none d-lg-table-cell">Status</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (tx of transactions(); track tx.id) {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="tx-icon"
+                                                    [style.background-color]="tx.direction === 'CREDIT' ? '#10b9811a' : '#ef44441a'"
+                                                    [style.color]="tx.direction === 'CREDIT' ? '#10B981' : '#EF4444'">
+                                                        <i class="fa-solid" [class]="getTxIconClass(tx.type)"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0 fw-medium small" style="color: #1F2937;">{{ tx.description }}</p>
+                                                        <span class="type-pill">{{ tx.type }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="d-none d-md-table-cell">
+                                                @if (tx.fromIban || tx.toIban) {
+                                                    <div class="d-flex flex-column">
+                                                        <span class="small mono" style="white-space: nowrap;"><i class="fa-solid fa-arrow-right me-1" style="color:#EF4444;"></i>{{ tx.fromIban ?? 'External' }}</span>
+                                                        <span class="small mono" style="white-space: nowrap;"><i class="fa-solid fa-arrow-left me-1" style="color:#10B981;"></i>{{ tx.toIban ?? 'External' }}</span>
+                                                    </div>
+                                                } @else {
+                                                    <span class="text-muted small">N/A</span>
+                                                }
+                                            </td>
+                                            <td class="text-muted small d-none d-lg-table-cell">{{ tx.timestamp | date:'MMM d, y' }}</td>
+                                            <td class="d-none d-lg-table-cell">
+                                                @if (tx.status === 'COMPLETED') {
+                                                    <span class="status-badge status-badge--completed"><i class="fa-solid fa-circle-check me-1"></i>Completed</span>
+                                                } @else if (tx.status === 'PENDING') {
+                                                    <span class="status-badge status-badge--pending"><i class="fa-solid fa-clock me-1"></i>Pending</span>
+                                                } @else {
+                                                    <span class="status-badge status-badge--failed"><i class="fa-solid fa-circle-xmark me-1"></i>Failed</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="fw-semibold" style="white-space:nowrap;"
+                                                    [style.color]="tx.direction === 'CREDIT' ? '#10B981' : '#EF4444'">
+                                                    {{ tx.amount | currency:'EUR' | txDirection:tx.direction }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Simulate -->
+            <div class="admin-card">
+                <div class="admin-card__header">
+                    <i class="fa-solid fa-flask me-2" style="color: #117eeb;"></i>Simulate Transaction
+                </div>
+                <div class="admin-card__body">
+                    <div class="row g-3">
+
+                        <!-- Deposit -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="sim-card sim-card--deposit">
+                                <div class="sim-card__header"><i class="fa-solid fa-turn-up me-2"></i>Deposit</div>
+                                <form [formGroup]="depositForm" (ngSubmit)="onSubmitDeposit()" class="sim-card__body">
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="dep-account-id">Account ID</label>
+                                        <input type="number" id="dep-account-id" class="form-control form-control-sm" min="1" step="1" formControlName="accountId" [class.is-invalid]="checkValidity(depositForm, 'accountId')">
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="dep-amount">Amount (EUR)</label>
+                                        <input type="number" id="dep-amount" class="form-control form-control-sm" min="0" step="0.01" formControlName="amount" [class.is-invalid]="checkValidity(depositForm, 'amount')">
+                                    </fieldset>
+                                    <fieldset class="mb-3">
+                                        <label class="form-label small mb-1" for="dep-desc">Description <span class="text-muted">(opt.)</span></label>
+                                        <input type="text" id="dep-desc" class="form-control form-control-sm" formControlName="description">
+                                    </fieldset>
+                                    @if (depositSuccess()) {
+                                        <div class="inline-alert inline-alert--success mb-2">
+                                            <i class="fa-solid fa-circle-check me-2"></i>{{ depositSuccess() }}
+                                        </div>
+                                    }
+                                    @if (depositError()) {
+                                        <div class="inline-alert inline-alert--error mb-2">
+                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ depositError() }}
+                                        </div>
+                                    }
+                                    <button type="submit" class="btn btn-sm w-100 btn-deposit" [disabled]="depositForm.invalid || depositLoading()">
+                                        {{ depositLoading() ? 'Processing...' : 'Deposit' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Withdraw -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="sim-card sim-card--withdraw">
+                                <div class="sim-card__header"><i class="fa-solid fa-turn-down me-2"></i>Withdraw</div>
+                                <form [formGroup]="withdrawForm" (ngSubmit)="onSubmitWithdraw()" class="sim-card__body">
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="wit-account-id">Account ID</label>
+                                        <input type="number" id="wit-account-id" class="form-control form-control-sm" min="1" step="1" formControlName="accountId" [class.is-invalid]="checkValidity(withdrawForm, 'accountId')">
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="wit-amount">Amount (EUR)</label>
+                                        <input type="number" id="wit-amount" class="form-control form-control-sm" min="0" step="0.01" formControlName="amount" [class.is-invalid]="checkValidity(withdrawForm, 'amount')">
+                                    </fieldset>
+                                    <fieldset class="mb-3">
+                                        <label class="form-label small mb-1" for="wit-desc">Description <span class="text-muted">(opt.)</span></label>
+                                        <input type="text" id="wit-desc" class="form-control form-control-sm" formControlName="description">
+                                    </fieldset>
+                                    @if (withdrawSuccess()) {
+                                        <div class="inline-alert inline-alert--success mb-2">
+                                            <i class="fa-solid fa-circle-check me-2"></i>{{ withdrawSuccess() }}
+                                        </div>
+                                    }
+                                    @if (withdrawError()) {
+                                        <div class="inline-alert inline-alert--error mb-2">
+                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ withdrawError() }}
+                                        </div>
+                                    }
+                                    <button type="submit" class="btn btn-sm w-100 btn-withdraw" [disabled]="withdrawForm.invalid || withdrawLoading()">
+                                        {{ withdrawLoading() ? 'Processing...' : 'Withdraw' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- POS -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="sim-card sim-card--pos">
+                                <div class="sim-card__header"><i class="fa-solid fa-cash-register me-2"></i>POS</div>
+                                <form [formGroup]="posForm" (ngSubmit)="onSubmitPOS()" class="sim-card__body">
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="pos-to-id">From Account ID</label>
+                                        <input type="number" id="pos-to-id" class="form-control form-control-sm" min="1" step="1" formControlName="fromAccountId" [class.is-invalid]="checkValidity(posForm, 'fromAccountId')">
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="pos-to-iban">To IBAN</label>
+                                        <input type="text" id="pos-to-iban" class="form-control form-control-sm" placeholder="HR..." formControlName="toIban" [class.is-invalid]="checkValidity(posForm, 'toIban')">
+                                        @if (posForm.get('toIban')?.hasError('pattern')) {
+                                            <div class="invalid-feedback">Invalid IBAN format</div>
+                                        }
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="pos-amount">Amount (EUR)</label>
+                                        <input type="number" id="pos-amount" class="form-control form-control-sm" min="0" step="0.01" formControlName="amount" [class.is-invalid]="checkValidity(posForm, 'amount')">
+                                    </fieldset>
+                                    <fieldset class="mb-3">
+                                        <label class="form-label small mb-1" for="pos-desc">Description <span class="text-muted">(opt.)</span></label>
+                                        <input type="text" id="pos-desc" class="form-control form-control-sm" formControlName="description">
+                                    </fieldset>
+                                    @if (posSuccess()) {
+                                        <div class="inline-alert inline-alert--success mb-2">
+                                            <i class="fa-solid fa-circle-check me-2"></i>{{ posSuccess() }}
+                                        </div>
+                                    }
+                                    @if (posError()) {
+                                        <div class="inline-alert inline-alert--error mb-2">
+                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ posError() }}
+                                        </div>
+                                    }
+                                    <button type="submit" class="btn btn-sm w-100 btn-pos" [disabled]="posForm.invalid || posLoading()">
+                                        {{ posLoading() ? 'Processing...' : 'Submit POS' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Transfer -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="sim-card sim-card--transfer">
+                                <div class="sim-card__header"><i class="fa-solid fa-arrow-right-arrow-left me-2"></i>Transfer</div>
+                                <form [formGroup]="transferFormGroup" (ngSubmit)="onSubmitTransfer()" class="sim-card__body">
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="tran-from-id">From Account ID</label>
+                                        <input type="number" id="tran-from-id" class="form-control form-control-sm" min="1" step="1" formControlName="fromAccountId" [class.is-invalid]="checkValidity(transferFormGroup, 'fromAccountId')">
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="tran-to-iban">To IBAN</label>
+                                        <input type="text" id="tran-to-iban" class="form-control form-control-sm" placeholder="HR…" formControlName="toIban"
+                                        [class.is-invalid]="checkValidity(transferFormGroup, 'toIban')">
+                                        @if (transferFormGroup.get('toIban')?.hasError('pattern')) {
+                                            <div class="invalid-feedback">Invalid IBAN format</div>
+                                        }
+                                    </fieldset>
+                                    <fieldset class="mb-2">
+                                        <label class="form-label small mb-1" for="tran-amount">Amount (EUR)</label>
+                                        <input type="number" id="tran-amount" class="form-control form-control-sm" min="0" step="0.01" formControlName="amount" [class.is-invalid]="checkValidity(transferFormGroup, 'amount')">
+                                    </fieldset>
+                                    <fieldset class="mb-3">
+                                        <label class="form-label small mb-1" for="tran-desc">Description <span class="text-muted">(opt.)</span></label>
+                                        <input type="text" id="tran-desc" class="form-control form-control-sm" formControlName="description">
+                                    </fieldset>
+                                    @if (transferSuccess()) {
+                                        <div class="inline-alert inline-alert--success mb-2">
+                                            <i class="fa-solid fa-circle-check me-2"></i>{{ transferSuccess() }}
+                                        </div>
+                                    }
+                                    @if (transferError()) {
+                                        <div class="inline-alert inline-alert--error mb-2">
+                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ transferError() }}
+                                        </div>
+                                    }
+                                    <button type="submit" class="btn btn-sm w-100 btn-transfer" [disabled]="transferFormGroup.invalid || transferLoading()">
+                                        {{ transferLoading() ? 'Processing...' : 'Transfer' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ── CARDS ──────────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'CARDS') {
+        <div class="tab-pane">
+            <div class="admin-card mb-4">
+                <div class="admin-card__body">
+                    <div class="d-flex gap-2" style="max-width: 360px;">
+                        <input type="number" class="form-control form-control-sm" placeholder="User ID"
+                            min="1"
+                            step="1"
+                            (input)="cardSearchId.set(+$any($event.target).value || null)"
+                            (keyup.enter)="loadCardsByUserId()">
+                        <button class="btn btn-sm btn-primary text-nowrap"  [disabled]="cardsLoading()" (click)="loadCardsByUserId()">
+                            <i class="fa-solid fa-bolt me-1"></i>Fetch Cards
+                        </button>
+                    </div>
+                </div>
+                @if (cardsError()) {
+                    <div class="inline-alert inline-alert--error mb-3 mx-3">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ cardsError() }}
+                    </div>
+                }
+            </div>
+
+            @if (cardsLoading()) {
+                <div class="state-box"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading cards...</div>
+            } @else if (cards().length === 0 && cardSearchId()) {
+                <div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No cards found for this user</p></div>
+            } @else if (cards().length > 0) {
+                <div class="row g-3">
+                    @for (card of cards(); track card.id) {
+                        <div class="col-12 col-sm-6 col-xl-4">
+                            <div class="bank-card"
+                                [class.bank-card--blocked]="card.status === 'BLOCKED'"
+                                [class.bank-card--expired]="card.status === 'EXPIRED'">
+                                <div class="bank-card__inner">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <span class="bank-card__name">SecureBank</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="card-type-badge">
+                                            <i class="fa-solid me-1"
+                                                [class.fa-wallet]="card.type === 'DEBIT'"
+                                                [class.fa-credit-card]="card.type === 'CREDIT'"></i>{{ card.type }}
+                                            </span>
+                                            <span class="status-dot"
+                                            [class.status-dot--active]="card.status === 'ACTIVE'"
+                                            [class.status-dot--blocked]="card.status === 'BLOCKED'"
+                                            [class.status-dot--expired]="card.status === 'EXPIRED'">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mb-4">
+                                        <div class="chip-icon"><i class="fa-solid fa-sim-card"></i></div>
+                                    </div>
+                                    <div class="bank-card__number mb-3">{{ card.number | cardNo }}</div>
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <div class="bank-card__meta">EXPIRES</div>
+                                            <div class="bank-card__expiry">{{ formatExpiry(card.expiryDate) }}</div>
+                                        </div>
+                                        <!--<div class="text-end">
+                                            <div class="bank-card__meta">ID</div>
+                                            <div class="bank-card__expiry">#{{ card.id }}</div>
+                                        </div>-->
+                                    </div>
+                                </div>
+                                @if (card.status !== 'ACTIVE') {
+                                    <div class="bank-card__overlay">
+                                        <i class="fa-solid"
+                                            [class.fa-ban]="card.status === 'BLOCKED'"
+                                            [class.fa-clock-rotate-left]="card.status === 'EXPIRED'"></i>
+                                        <span>{{ card.status }}</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="card-action-row">
+                                @if (card.status === 'ACTIVE') {
+                                    <button class="btn btn-sm btn-outline-danger w-100" (click)="toggleCardStatus(card.id, card.status)">
+                                        <i class="fa-solid fa-ban me-1"></i>Block
+                                    </button>
+                                } @else if (card.status === 'BLOCKED') {
+                                    <button class="btn btn-sm btn-outline-success w-100" (click)="toggleCardStatus(card.id, card.status)">
+                                        <i class="fa-solid fa-circle-check me-1"></i>Unblock
+                                    </button>
+                                } @else {
+                                    <button class="btn btn-sm btn-outline-warning w-100" style="color: black;" disabled>
+                                        <i class="fa-solid fa-clock-rotate-left me-1"></i>Expired
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeTab() === 'AUDIT') {
+        <div class="tab-pane">
+            <div class="admin-card">
+                <div class="admin-card__header">
+                    <i class="fa-solid fa-shield-halved me-2" style="color:#117eeb;"></i>
+                    Audit Log
+                    <span class="ms-auto text-muted" style="font-size:12px; font-weight:400;">Most recent entries</span>
+                </div>
+
+                @if (auditLoading()) {
+                    <div class="state-box">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </div>
+                } @else if (auditError()) {
+                    <div class="state-box state-box--error">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ auditError() }}
+                    </div>
+                } @else if (auditLogs().length === 0) {
+                    <div class="empty-state">
+                        <i class="fa-solid fa-shield-halved"></i><p>No audit entries found</p>
+                    </div>
+                } @else {
+                    <div class="table-responsive">
+                        <table class="table admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Table</th>
+                                    <th>Action</th>
+                                    <th>Record ID</th>
+                                    <th>Changed by</th>
+                                    <th class="d-none d-md-table-cell">Changed at</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (entry of auditLogs(); track entry.id) {
+                                    <tr>
+                                        <td class="mono text-muted">#{{ entry.id }}</td>
+                                        <td><span class="table-badge badge">{{ entry.tableName }}</span></td>
+                                        <td>
+                                            <span class="action-badge px-2 py-1 fw-semibold rounded"
+                                                [class.action-badge--insert]="entry.action === 'INSERT'"
+                                                [class.action-badge--update]="entry.action === 'UPDATE'"
+                                                [class.action-badge--delete]="entry.action === 'DELETE'">
+                                                {{ entry.action }}
+                                            </span>
+                                        </td>
+                                        <td class="mono text-muted">#{{ entry.recordId }}</td>
+                                        <td>{{ entry.changedBy }}</td>
+                                        <td class="text-muted small d-none d-md-table-cell">
+                                            {{ entry.changedAt | date:'MMM d, y, HH:mm' }}
+                                        </td>
+                                        <td>
+                                            @if (entry.oldData || entry.newData) {
+                                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleDiff(entry.id)">
+                                                    <i class="fa-solid" [class]="expandedDiffId() === entry.id ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                    @if (expandedDiffId() === entry.id) {
+                                        <tr class="diff-row">
+                                            <td colspan="7" style="padding: 0 1rem 0.75rem;">
+                                                <div class="d-flex gap-3 flex-wrap">
+                                                    @if (entry.oldData) {
+                                                        <div style="flex:1; min-width:160px;">
+                                                            <div class="diff-label">Before</div>
+                                                            <pre class="diff-panel diff-panel--before">{{ entry.oldData }}</pre>
+                                                        </div>
+                                                    }
+                                                    @if (entry.newData) {
+                                                        <div style="flex:1; min-width:160px;">
+                                                            <div class="diff-label">After</div>
+                                                            <pre class="diff-panel diff-panel--after">{{ entry.newData }}</pre>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex align-items-center justify-content-between px-3 py-2"
+                        style="border-top: 0.5px solid #E5E7EB;">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="limit-select" class="text-muted small">Rows per page</label>
+                            <select class="form-select form-select-sm w-fit-content" id="limit-select"
+                                    [ngModel]="auditLimit()"
+                                    (ngModelChange)="onAuditLimitChange(+$event)">
+                                @for (l of AUDIT_LIMITS; track l) {
+                                    <option [value]="l">{{ l }}</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="text-muted small">Page {{ auditPage() }} of {{ auditTotalPages() }}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    [disabled]="auditPage() === 1 || auditLoading()"
+                                    (click)="loadAuditLog(auditPage() - 1)">
+                                <i class="fa-solid fa-chevron-left"></i> Prev
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    [disabled]="auditPage() === auditTotalPages() || auditLoading()"
+                                    (click)="loadAuditLog(auditPage() + 1)">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

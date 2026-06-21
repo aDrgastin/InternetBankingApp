@@ -26,6 +26,12 @@
                         <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Cards</span>
                     </a></li>
                 }
+                @if (authService.isPrivileged()) {
+                    <li><a href="#" [routerLink]="['/admin']" routerLinkActive="active" class="sidebar-item" title="Admin panel">
+                        <i class="fa-brands fa-black-tie" [class.collapsed]="isSidebarCollapsed()"></i>
+                        <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Admin panel</span>
+                    </a></li>
+                }
                 <li class="profile-link"><a href="#" [routerLink]="['/profile']" routerLinkActive="active" class="sidebar-item" title="Profile">
                     <i class="fa-regular fa-circle-user" [class.collapsed]="isSidebarCollapsed()"></i>
                     <span class="sidebar-item-text" [class.collapsed]="isSidebarCollapsed()">Profile</span>
