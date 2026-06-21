@@ -11,7 +11,7 @@ export async function getAuditLog(req, res) {
             status: 'SUCCESS',
             data: rows,
             pagination: {
-                page, limit, total, totalPages: Math.ceil(total / limit)
+                page, total, totalPages: Math.ceil(total / limit)
             }
         });
     } catch (err) {

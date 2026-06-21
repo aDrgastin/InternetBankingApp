@@ -3,7 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { catchError, EMPTY, forkJoin, map, switchMap, tap, throwError } from 'rxjs';
 import { User } from '../models/user';
-import { AuthResponse } from '../models/authResponse';
+import { AuthResponse } from '../models/auth-response';
 import { AccountService } from './account-service';
 import { Router } from '@angular/router';
 import { TransactionService } from './transaction-service';
