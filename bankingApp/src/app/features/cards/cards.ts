@@ -15,7 +15,7 @@ import { CardNoPipe } from '../../shared/pipes/card-no-pipe';
 })
 export class Cards {
     private readonly cardService = inject(CardService);
-    private accountService = inject(AccountService);
+    private readonly accountService = inject(AccountService);
 
     cards = this.cardService.cards;
     accounts = this.accountService.accounts;

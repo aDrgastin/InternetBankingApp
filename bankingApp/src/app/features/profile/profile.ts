@@ -23,7 +23,7 @@ export class Profile {
     };
     protected passwordVisible = signal(false);
     protected confirmPasswordVisible = signal(false);
-    protected showPasswordSection: boolean = false;
+    protected showPasswordSection = signal(false);
     protected pinVisible = signal(false);
     protected errorMsg = signal('');
 
@@ -51,8 +51,8 @@ export class Profile {
     }
 
     togglePasswordSection() {
-        this.showPasswordSection = !this.showPasswordSection;
-        if (!this.showPasswordSection) {
+        this.showPasswordSection.set(!this.showPasswordSection());
+        if (!this.showPasswordSection()) {
             this.resetPasswordForm();
         }
     }
@@ -65,7 +65,7 @@ export class Profile {
         this.authService.changePassword(this.user()?.id ?? 0, this.passwordChange.currentPassword, this.passwordChange.newPassword).subscribe({
             next: () => {
                 this.resetPasswordForm();
-                this.showPasswordSection = false;
+                this.showPasswordSection.set(false);
                 alert('Password changed successfully!');
             },
             error: (err: Error) => {
