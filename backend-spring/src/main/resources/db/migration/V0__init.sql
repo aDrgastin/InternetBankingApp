@@ -254,37 +254,6 @@ DELIMITER ;
 
 
 
-CREATE OR REPLACE VIEW `vw_account_details` AS
-    SELECT a.id, iban, balance, status, at.name AS type, a.created_at AS createdAt, u.id AS userId
-    FROM account a JOIN user_account ua ON a.id = ua.account_id
-               JOIN app_user u ON ua.user_id = u.id
-               JOIN account_type at ON a.type_id = at.id;
-
-
-CREATE OR REPLACE VIEW `vw_transaction_details` AS
-    SELECT t.id, reference, tt.name AS type, from_iban AS fromIban, to_iban AS toIban, amount, status, timestamp, description
-    FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id;
-
-
-CREATE  OR REPLACE VIEW `vw_app_user_transactions` AS
-    SELECT ua.user_id AS userId, ua.account_id AS accountId, t.id, reference, tt.name AS type, from_account_id AS fromAccountId, from_iban AS fromIban, to_account_id AS toAccountId, to_iban AS toIban, amount, t.status, timestamp, description
-    FROM transaction t JOIN account a ON t.from_account_id = a.id OR t.to_account_id = a.id
-        JOIN user_account ua ON a.id = ua.account_id
-        JOIN transaction_type tt ON t.type_id = tt.id;
-
-
-CREATE  OR REPLACE VIEW `vw_app_user_cards` AS
-    SELECT c.id, c.account_id AS accountId, ua.user_id AS userId, a.iban, a.status AS accountStatus, at.name AS accountType, card_number AS number, card_type AS type,
-       CASE
-           WHEN c.expiry_date < NOW() THEN 'EXPIRED'
-           ELSE c.status
-           END AS status, expiry_date AS expiryDate, c.created_at AS createdAt
-    FROM card c JOIN account a ON c.account_id = a.id
-        JOIN user_account ua ON a.id = ua.account_id
-        JOIN account_type at ON a.type_id = at.id;
-
-
-
 DELIMITER $$
 CREATE TRIGGER `trg_app_user_insert` AFTER INSERT ON `app_user` FOR EACH ROW
 BEGIN
