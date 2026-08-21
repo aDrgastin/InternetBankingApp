@@ -1,0 +1,14 @@
+package com.adrgastin.banking.auditlog;
+
+import java.time.LocalDateTime;
+
+public record AuditLogDTO(
+        Integer id,
+        String tableName,
+        AuditAction action,
+        Integer recordId,
+        String changedBy,
+        String oldData,
+        String newData,
+        LocalDateTime changedAt
+) { }
