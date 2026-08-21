@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -47,7 +49,8 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, insertable = false, updatable = false)
+    @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime timestamp;
 
     private String description;

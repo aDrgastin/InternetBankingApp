@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +16,7 @@ import java.util.Set;
 @Entity
 @Table(name = "app_user")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppUser {
@@ -38,7 +42,8 @@ public class AppUser {
     @Column(nullable = false, length = 75)
     private String email;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createdAt;
 
     @ManyToMany(fetch = FetchType.LAZY)

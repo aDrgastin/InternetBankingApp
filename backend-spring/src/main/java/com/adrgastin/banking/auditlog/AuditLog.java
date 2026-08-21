@@ -1,7 +1,9 @@
 package com.adrgastin.banking.auditlog;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SourceType;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ public class AuditLog {
     @JdbcTypeCode(SqlTypes.JSON)
     private String newData;
 
-    @Column(name = "changed_at", nullable = false)
+    @Column(name = "changed_at", nullable = false, insertable = false, updatable = false)
+    @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime changedAt;
 }

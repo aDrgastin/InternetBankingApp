@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,7 +37,8 @@ public class Account {
     @JoinColumn(name = "type_id", nullable = false)
     private AccountType accountType;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createdAt;
 
     @ManyToMany(mappedBy = "accounts", fetch = FetchType.LAZY)
