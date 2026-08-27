@@ -2,7 +2,10 @@ package com.adrgastin.banking.card;
 
 import com.adrgastin.banking.account.Account;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
 
@@ -12,6 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "card")
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
