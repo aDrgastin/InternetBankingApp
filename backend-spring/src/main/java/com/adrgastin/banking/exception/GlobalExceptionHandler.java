@@ -4,10 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.databind.exc.InvalidFormatException;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,8 +53,33 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.joining(", "));
+
         log.debug("Validation Failed: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
+        pd.setProperty("errorCode", "VALIDATION_FAILED");
+        pd.setProperty("fieldErrors", ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> Map.of("field", fe.getField(), "message", fe.getDefaultMessage()))
+                .toList());
+        return pd;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleUnreadableBody(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException formatEx && formatEx.getTargetType().isEnum()) {
+            String field = formatEx.getPath().isEmpty() ? "unknown" : formatEx.getPath().getFirst().getPropertyName();
+            String detail = "Invalid value '" + formatEx.getValue() + "' for field '" + field + "'";
+            log.debug("Invalid enum value in request body: {}", detail);
+
+            ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+            pd.setProperty("errorCode", "UNKNOWN_ENUM");
+            pd.setProperty("field", field);
+            return pd;
+        }
+        log.debug("Malformed request body: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
+        pd.setProperty("errorCode", "MALFORMED_REQUEST_BODY");
+        return pd;
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
