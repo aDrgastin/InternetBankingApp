@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS transaction_type (
 
 CREATE TABLE IF NOT EXISTS transaction (
     id              INT NOT NULL AUTO_INCREMENT,
-    reference       CHAR(36) NOT NULL,
+    reference       CHAR(36) NOT NULL DEFAULT (UUID()),
     type_id         TINYINT NOT NULL,
     from_account_id INT,
     from_iban       CHAR(21),
@@ -136,6 +136,10 @@ BEGIN
         RESIGNAL;
     END;
 
+    IF from_acc_id = to_acc_id THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SAME_ACCOUNT';
+    END IF;
+
     START TRANSACTION;
     SELECT balance, status INTO v_balance_from, v_status_from FROM account WHERE id = from_acc_id FOR UPDATE;
     SELECT status INTO v_status_to FROM account WHERE id = to_acc_id FOR UPDATE;
@@ -156,6 +160,10 @@ BEGIN
     INSERT INTO transaction (reference, type_id, from_account_id, to_account_id, from_iban, to_iban, status, amount, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'TRANSFER'), from_acc_id, to_acc_id, (SELECT iban FROM account WHERE id = from_acc_id), (SELECT iban FROM account WHERE id = to_acc_id), 'COMPLETED', amount, description);
     COMMIT;
+
+    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
+    WHERE t.id = LAST_INSERT_ID();
 END$$
 
 DELIMITER ;
@@ -171,6 +179,10 @@ BEGIN
         ROLLBACK;
         RESIGNAL;
     END;
+
+    IF from_acc_id = to_acc_id THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SAME_ACCOUNT';
+    END IF;
 
     START TRANSACTION;
     SELECT balance, status INTO v_balance, v_from_status FROM account WHERE id = from_acc_id FOR UPDATE;
@@ -194,6 +206,10 @@ BEGIN
         to_acc_id, (SELECT iban FROM account WHERE id = to_acc_id),
         amount, 'COMPLETED', description);
     COMMIT;
+
+    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
+    WHERE t.id = LAST_INSERT_ID();
 END$$
 
 DELIMITER ;
@@ -223,6 +239,10 @@ BEGIN
     INSERT INTO transaction(reference, type_id, from_account_id, from_iban, amount, status, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'WITHDRAWAL'), acc_id, (SELECT iban FROM account WHERE id = acc_id), amount, 'COMPLETED', description);
     COMMIT;
+
+    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
+    WHERE t.id = LAST_INSERT_ID();
 END$$
 
 DELIMITER ;
@@ -248,6 +268,10 @@ BEGIN
     INSERT INTO transaction(reference, type_id, to_account_id, to_iban, amount, status, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'DEPOSIT'), acc_id, (SELECT iban FROM account WHERE id = acc_id), amount, 'COMPLETED', description);
     COMMIT;
+
+    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
+    WHERE t.id = LAST_INSERT_ID();
 END$$
 
 DELIMITER ;
