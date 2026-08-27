@@ -9,6 +9,9 @@ public record AccountDTO(
         BigDecimal balance,
         AccountStatus status,
         AccountType type,
-        LocalDateTime createdAt,
-        Integer userId
-) { }
+        LocalDateTime createdAt
+) {
+    public static AccountDTO from(Account account) {
+        return new AccountDTO(account.getId(), account.getIban(), account.getBalance(), account.getStatus(), account.getAccountType(), account.getCreatedAt());
+    }
+}

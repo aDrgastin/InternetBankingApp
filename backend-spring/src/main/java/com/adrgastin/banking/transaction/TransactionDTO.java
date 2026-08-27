@@ -26,6 +26,15 @@ public record TransactionDTO(
                 tx.getAmount(), tx.getStatus(), tx.getTimestamp(), tx.getDescription(), resolveDirectionForUser(tx, requestingUserId));
     }
 
+    public static TransactionDTO forAccount(Transaction tx, Integer accountId) {
+        return new TransactionDTO(tx.getId(), tx.getReference(), tx.getType(),
+                tx.getFromAccount() != null ? tx.getFromAccount().getId() : null,
+                tx.getFromAccount() != null ? tx.getFromAccount().getIban() : null,
+                tx.getToAccount() != null ? tx.getToAccount().getId() : null,
+                tx.getToAccount() != null ? tx.getToAccount().getIban() : null,
+                tx.getAmount(), tx.getStatus(), tx.getTimestamp(), tx.getDescription(), resolveDirectionForAccount(tx, accountId));
+    }
+
     private static TransactionDirection resolveDirectionForUser(Transaction tx, Integer userId) {
         String type = tx.getType().toString();
         if ("DEPOSIT".equals(type)) return TransactionDirection.CREDIT;

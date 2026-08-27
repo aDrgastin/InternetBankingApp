@@ -11,4 +11,8 @@ public record AuditLogDTO(
         String oldData,
         String newData,
         LocalDateTime changedAt
-) { }
+) {
+    public static AuditLogDTO from(AuditLogView view) {
+        return new AuditLogDTO(view.getId(), view.getTableName(), view.getAction(), view.getRecordId(), view.getChangedBy() != null ? view.getChangedBy() : "SYSTEM", view.getOldData(), view.getNewData(), view.getChangedAt());
+    }
+}
