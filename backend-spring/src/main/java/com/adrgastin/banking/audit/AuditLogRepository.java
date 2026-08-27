@@ -1,4 +1,4 @@
-package com.adrgastin.banking.auditlog;
+package com.adrgastin.banking.audit;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,5 +11,5 @@ public interface AuditLogRepository extends JpaRepository<AuditLog,Integer> {
         FROM audit_log al LEFT JOIN app_user u ON changed_by = u.id
         ORDER BY changed_at DESC
     """, countQuery = "SELECT COUNT(*) FROM audit_log", nativeQuery = true)
-    Page<AuditLog> findAll(Pageable pageable);
+    Page<AuditLogView> findAllView(Pageable pageable);
 }

@@ -1,6 +1,7 @@
-package com.adrgastin.banking.auditlog;
+package com.adrgastin.banking.audit;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SourceType;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit_log")
+@Getter
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

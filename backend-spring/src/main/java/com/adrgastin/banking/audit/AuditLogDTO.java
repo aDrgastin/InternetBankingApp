@@ -1,4 +1,4 @@
-package com.adrgastin.banking.auditlog;
+package com.adrgastin.banking.audit;
 
 import java.time.LocalDateTime;
 
