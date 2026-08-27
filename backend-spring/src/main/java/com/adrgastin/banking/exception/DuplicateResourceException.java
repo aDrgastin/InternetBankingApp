@@ -6,8 +6,8 @@ public class DuplicateResourceException extends RuntimeException {
     @Getter
     private final String resourceType;
 
-    public DuplicateResourceException(String resourceType, Throwable cause) {
-        super(resourceType + " already exists", cause);
+    public DuplicateResourceException(String resourceType, String message, Throwable cause) {
+        super(message, cause);
         this.resourceType = resourceType;
     }
 }
