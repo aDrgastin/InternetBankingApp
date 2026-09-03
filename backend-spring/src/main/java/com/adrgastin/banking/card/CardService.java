@@ -5,29 +5,31 @@ import com.adrgastin.banking.account.AccountRepository;
 import com.adrgastin.banking.exception.DuplicateResourceException;
 import com.adrgastin.banking.exception.ResourceNotFoundException;
 import com.adrgastin.banking.generator.CardNumberGenerator;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class CardService {
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
     private final CardNumberGenerator generator;
-    @Value("${banking.card.validity-months}")
-    private static final int VALIDITY_MONTHS = 60;
+    @Value("${banking.card.validity-months:60}")
+    private int VALIDITY_MONTHS;
 
     public List<CardDTO> getAllByUserId(Integer userId) {
         return cardRepository.findByAccount_Users_Id(userId).stream().map(CardDTO::from).toList();
     }
 
+    @Transactional(readOnly = true)
     public CardDTO getById(Integer id, Integer requestingUserId) {
         Card card = cardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Card", id));
 
@@ -38,6 +40,7 @@ public class CardService {
         return CardDTO.from(card);
     }
 
+    @Transactional
     public CardDTO create(CreateCardCommand command, Integer requestingUserId) {
         Account account = accountRepository.findById(command.accountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", command.accountId()));
@@ -60,6 +63,7 @@ public class CardService {
         return CardDTO.from(saved);
     }
 
+    @Transactional
     public CardDTO updateStatus(Integer id, UpdateCardStatusCommand command, Integer requestingUserId) {
         Card found = cardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Card", id));

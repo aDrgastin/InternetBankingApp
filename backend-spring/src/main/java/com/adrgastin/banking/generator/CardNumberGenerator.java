@@ -1,19 +1,19 @@
 package com.adrgastin.banking.generator;
 
 import com.adrgastin.banking.card.CardRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CardNumberGenerator {
-    @Value("${banking.card.bin}")
-    private static final String BIN = "440000";
-    @Value("${banking.card.account-length}")
-    private static final int ACCOUNT_LENGTH = 9;
+    @Value("${banking.card.bin:440000}")
+    private String BIN;
+    @Value("${banking.card.account-length:9}")
+    private int ACCOUNT_LENGTH;
     private static final SecureRandom random = new SecureRandom();
 
     private final CardRepository cardRepository;
