@@ -48,6 +48,22 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(CardNotActiveException.class)
+    public ProblemDetail handleCardNotActive(CardNotActiveException ex) {
+        log.info(ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setProperty("errorCode", "CARD_NOT_ACTIVE");
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidTransferException.class)
+    public ProblemDetail handleInvalidTransfer(InvalidTransferException ex) {
+        log.info("Invalid transfer attempt: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        pd.setProperty("errorCode", "INVALID_TRANSFER");
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
