@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS account (
     PRIMARY KEY (id),
     UNIQUE INDEX uq_account_iban (iban),
     INDEX idx_account_type_id (type_id),
-    CONSTRAINT `fk_account_account_type` FOREIGN KEY (type_id) REFERENCES account_type(id)
+    CONSTRAINT `fk_account_account_type` FOREIGN KEY (type_id) REFERENCES account_type(id),
+    CONSTRAINT `chk_positive_balance` CHECK (balance >= 0.0)
 ) ENGINE = InnoDB;
 
 
@@ -80,7 +81,8 @@ CREATE TABLE IF NOT EXISTS transaction (
     INDEX idx_transaction_timestamp (timestamp DESC),
     CONSTRAINT fk_transaction_from_account FOREIGN KEY (from_account_id) REFERENCES account(id),
     CONSTRAINT fk_transaction_to_account FOREIGN KEY (to_account_id) REFERENCES account(id),
-    CONSTRAINT fk_transaction_transaction_type FOREIGN KEY (type_id) REFERENCES transaction_type(id)
+    CONSTRAINT fk_transaction_transaction_type FOREIGN KEY (type_id) REFERENCES transaction_type(id),
+    CONSTRAINT `chk_positive_amount` CHECK (amount > 0)
 ) ENGINE = InnoDB;
 
 
