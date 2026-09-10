@@ -130,17 +130,12 @@ CREATE PROCEDURE `sp_transfer_funds` (IN from_acc_id INT, IN to_acc_id INT, IN a
 BEGIN
 	DECLARE v_balance_from DECIMAL(12,2);
     DECLARE v_status_from, v_status_to VARCHAR(10);
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
 
     IF from_acc_id = to_acc_id THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SAME_ACCOUNT';
     END IF;
 
-    START TRANSACTION;
+    -- START TRANSACTION;
     SELECT balance, status INTO v_balance_from, v_status_from FROM account WHERE id = from_acc_id FOR UPDATE;
     SELECT status INTO v_status_to FROM account WHERE id = to_acc_id FOR UPDATE;
 
@@ -159,11 +154,11 @@ BEGIN
 
     INSERT INTO transaction (reference, type_id, from_account_id, to_account_id, from_iban, to_iban, status, amount, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'TRANSFER'), from_acc_id, to_acc_id, (SELECT iban FROM account WHERE id = from_acc_id), (SELECT iban FROM account WHERE id = to_acc_id), 'COMPLETED', amount, description);
-    COMMIT;
+    -- COMMIT;
 
-    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    /*SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
     FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
-    WHERE t.id = LAST_INSERT_ID();
+    WHERE t.id = LAST_INSERT_ID();*/
 END$$
 
 DELIMITER ;
@@ -174,17 +169,11 @@ CREATE PROCEDURE `sp_pos_payout` (IN from_acc_id INT, IN to_acc_id INT, IN amoun
 BEGIN
 	DECLARE v_from_status, v_to_status CHAR(10);
     DECLARE v_balance DECIMAL(12,2);
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
 
     IF from_acc_id = to_acc_id THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SAME_ACCOUNT';
     END IF;
 
-    START TRANSACTION;
     SELECT balance, status INTO v_balance, v_from_status FROM account WHERE id = from_acc_id FOR UPDATE;
     SELECT status INTO v_to_status FROM account WHERE id = to_acc_id FOR UPDATE;
 
@@ -205,11 +194,11 @@ BEGIN
         from_acc_id, (SELECT iban FROM account WHERE id = from_acc_id),
         to_acc_id, (SELECT iban FROM account WHERE id = to_acc_id),
         amount, 'COMPLETED', description);
-    COMMIT;
+    -- COMMIT;
 
-    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    /*SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
     FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
-    WHERE t.id = LAST_INSERT_ID();
+    WHERE t.id = LAST_INSERT_ID();*/
 END$$
 
 DELIMITER ;
@@ -220,13 +209,8 @@ CREATE PROCEDURE `sp_withdraw_funds` (IN acc_id INT, IN amount DECIMAL(12,2), IN
 BEGIN
 	DECLARE v_balance DECIMAL(12,2);
     DECLARE v_status CHAR(10);
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
 
-    START TRANSACTION;
+    -- START TRANSACTION;
     SELECT balance, status INTO v_balance, v_status FROM account WHERE id = acc_id FOR UPDATE;
     IF v_status = 'CLOSED' THEN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ACCOUNT_CLOSED';
@@ -238,11 +222,11 @@ BEGIN
     UPDATE account SET balance = balance - amount WHERE id = acc_id;
     INSERT INTO transaction(reference, type_id, from_account_id, from_iban, amount, status, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'WITHDRAWAL'), acc_id, (SELECT iban FROM account WHERE id = acc_id), amount, 'COMPLETED', description);
-    COMMIT;
+    -- COMMIT;
 
-    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    /*SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
     FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
-    WHERE t.id = LAST_INSERT_ID();
+    WHERE t.id = LAST_INSERT_ID();*/
 END$$
 
 DELIMITER ;
@@ -252,13 +236,8 @@ DELIMITER $$
 CREATE PROCEDURE `sp_deposit_funds` (IN acc_id INT, IN amount DECIMAL(12,2), IN description VARCHAR(255))
 BEGIN
     DECLARE v_status CHAR(10);
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
 
-    START TRANSACTION;
+    -- START TRANSACTION;
     SELECT status INTO v_status FROM account WHERE id = acc_id FOR UPDATE;
     IF v_status = 'CLOSED' THEN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ACCOUNT_CLOSED';
@@ -267,11 +246,11 @@ BEGIN
     UPDATE account SET balance = balance + amount WHERE id = acc_id;
     INSERT INTO transaction(reference, type_id, to_account_id, to_iban, amount, status, description)
         VALUES (UUID(), (SELECT id FROM transaction_type WHERE name = 'DEPOSIT'), acc_id, (SELECT iban FROM account WHERE id = acc_id), amount, 'COMPLETED', description);
-    COMMIT;
+    -- COMMIT;
 
-    SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
+    /*SELECT t.id, t.reference, tt.name AS type, t.from_account_id AS fromAccount, t.from_iban AS fromIban, t.to_account_id AS toAccount, t.to_iban AS toIban, t.amount, t.status, t.timestamp, t.description
     FROM transaction t JOIN transaction_type tt ON t.type_id = tt.id
-    WHERE t.id = LAST_INSERT_ID();
+    WHERE t.id = LAST_INSERT_ID();*/
 END$$
 
 DELIMITER ;
