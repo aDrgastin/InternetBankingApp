@@ -5,8 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.SourceType;
+import org.hibernate.generator.EventType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transaction")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction {
@@ -21,7 +25,8 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, insertable = false, updatable = false)
+    @Generated(event = EventType.INSERT)
     private String reference;
 
     @ManyToOne(fetch = FetchType.LAZY)
