@@ -1,12 +1,14 @@
 package com.adrgastin.banking.account;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "account_type")
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 public class AccountType {
     @Id
