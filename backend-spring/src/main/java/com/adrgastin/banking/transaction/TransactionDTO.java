@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public record TransactionDTO(
         Integer id,
         String reference,
-        TransactionType type,
+        String type,
         Integer fromAccount,
         String fromIban,
         Integer toAccount,
@@ -18,7 +18,7 @@ public record TransactionDTO(
         TransactionDirection direction
 ) {
     public static TransactionDTO forUser(Transaction tx, Integer requestingUserId) {
-        return new TransactionDTO(tx.getId(), tx.getReference(), tx.getType(),
+        return new TransactionDTO(tx.getId(), tx.getReference(), tx.getType().getName(),
                 tx.getFromAccount() != null ? tx.getFromAccount().getId() : null,
                 tx.getFromAccount() != null ? tx.getFromAccount().getIban() : null,
                 tx.getToAccount() != null ? tx.getToAccount().getId() : null,
@@ -27,7 +27,7 @@ public record TransactionDTO(
     }
 
     public static TransactionDTO forAccount(Transaction tx, Integer accountId) {
-        return new TransactionDTO(tx.getId(), tx.getReference(), tx.getType(),
+        return new TransactionDTO(tx.getId(), tx.getReference(), tx.getType().getName(),
                 tx.getFromAccount() != null ? tx.getFromAccount().getId() : null,
                 tx.getFromAccount() != null ? tx.getFromAccount().getIban() : null,
                 tx.getToAccount() != null ? tx.getToAccount().getId() : null,

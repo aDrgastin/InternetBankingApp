@@ -25,6 +25,7 @@ public class CardService {
     @Value("${banking.card.validity-months:60}")
     private int VALIDITY_MONTHS;
 
+    @Transactional(readOnly = true)
     public List<CardDTO> getAllByUserId(Integer userId) {
         return cardRepository.findByAccount_Users_Id(userId).stream().map(CardDTO::from).toList();
     }

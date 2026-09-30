@@ -8,10 +8,10 @@ public record AccountDTO(
         String iban,
         BigDecimal balance,
         AccountStatus status,
-        AccountType type,
+        String type,
         LocalDateTime createdAt
 ) {
     public static AccountDTO from(Account account) {
-        return new AccountDTO(account.getId(), account.getIban(), account.getBalance(), account.getStatus(), account.getAccountType(), account.getCreatedAt());
+        return new AccountDTO(account.getId(), account.getIban(), account.getBalance(), account.getStatus(), account.getAccountType().getName(), account.getCreatedAt());
     }
 }

@@ -23,6 +23,7 @@ import java.util.Set;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AppUserRepository appUserRepository;
+    private final AccountTypeRepository accountTypeRepository;
     private final IbanGenerator generator;
 
     @Transactional(readOnly = true)
@@ -35,6 +36,7 @@ public class AccountService {
         return AccountDTO.from(account);
     }
 
+    @Transactional(readOnly = true)
     public List<AccountDTO> getAllByUserId(Integer id) {
         return accountRepository.findByUsers_Id(id).stream().map(AccountDTO::from).toList();
     }
@@ -43,7 +45,9 @@ public class AccountService {
     public AccountDTO create(CreateAccountCommand command, Integer requestingUserId) {
         AppUser owner = appUserRepository.findById(requestingUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("AppUser", requestingUserId));
-        Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, command.type(), LocalDateTime.now(), new HashSet<>(Set.of(owner)));
+        AccountType accountType = accountTypeRepository.findByName(command.type())
+                .orElseThrow(() -> new ResourceNotFoundException("AccountType", command.type()));
+        Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, accountType, LocalDateTime.now(), new HashSet<>(Set.of(owner)));
 
         Account saved;
         try {

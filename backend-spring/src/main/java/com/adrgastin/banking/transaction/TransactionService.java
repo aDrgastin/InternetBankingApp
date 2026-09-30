@@ -29,11 +29,13 @@ public class TransactionService {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    @Transactional(readOnly = true)
     public List<TransactionDTO> getAllByAccountId(Integer accountId) {
         return transactionRepository.findAllByFromAccount_IdOrToAccount_Id(accountId, accountId)
                 .stream().map(t -> TransactionDTO.forAccount(t, accountId)).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<TransactionDTO> getAllByUserId(Integer userId) {
         return transactionRepository.findAllByFromAccount_Users_IdOrToAccount_Users_Id(userId, userId)
                 .stream().map(t -> TransactionDTO.forUser(t, userId)).toList();

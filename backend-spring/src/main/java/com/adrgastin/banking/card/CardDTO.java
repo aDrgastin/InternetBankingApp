@@ -2,7 +2,6 @@ package com.adrgastin.banking.card;
 
 import com.adrgastin.banking.account.Account;
 import com.adrgastin.banking.account.AccountStatus;
-import com.adrgastin.banking.account.AccountType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +11,7 @@ public record CardDTO(
         Integer accountId,
         String iban,
         AccountStatus accountStatus,
-        AccountType accountType,
+        String accountType,
         String number,
         CardType type,
         CardStatus status,
@@ -21,7 +20,7 @@ public record CardDTO(
 ) {
     public static CardDTO from(Card card) {
         Account account = card.getAccount();
-        return new CardDTO(card.getId(), account.getId(), account.getIban(), account.getStatus(), account.getAccountType(), card.getCardNumber(), card.getCardType(), resolveStatus(card), card.getExpiryDate(), card.getCreatedAt());
+        return new CardDTO(card.getId(), account.getId(), account.getIban(), account.getStatus(), account.getAccountType().getName(), card.getCardNumber(), card.getCardType(), resolveStatus(card), card.getExpiryDate(), card.getCreatedAt());
     }
 
     private static CardStatus resolveStatus(Card card) {
