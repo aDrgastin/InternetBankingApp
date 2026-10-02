@@ -1,6 +1,7 @@
 package com.adrgastin.banking.user;
 
 import com.adrgastin.banking.account.Account;
+import com.adrgastin.banking.role.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,4 +50,8 @@ public class AppUser {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_account", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "account_id"))
     private Set<Account> accounts =  new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 }

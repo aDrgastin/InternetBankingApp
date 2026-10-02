@@ -6,6 +6,11 @@ public class DuplicateResourceException extends RuntimeException {
     @Getter
     private final String resourceType;
 
+    public DuplicateResourceException(String resourceType, String message) {
+        super(message);
+        this.resourceType = resourceType;
+    }
+
     public DuplicateResourceException(String resourceType, String message, Throwable cause) {
         super(message, cause);
         this.resourceType = resourceType;

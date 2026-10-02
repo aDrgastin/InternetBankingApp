@@ -30,6 +30,18 @@ CREATE TABLE IF NOT EXISTS user_role (
 ) ENGINE = InnoDB;
 
 
+CREATE TABLE IF NOT EXISTS refresh_token (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    revoked BOOLEAN NOT NULL DEFAULT FALSE,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_refresh_token_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    UNIQUE INDEX uq_refresh_token_token_hash (token_hash)
+) ENGINE = InnoDB;
+
+
 CREATE TABLE IF NOT EXISTS account_type (
     id      TINYINT NOT NULL AUTO_INCREMENT,
     name    VARCHAR(50) NOT NULL,

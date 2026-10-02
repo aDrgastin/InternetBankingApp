@@ -1,6 +1,7 @@
 package com.adrgastin.banking.user;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record AppUserDTO(
         Integer id,
@@ -9,5 +10,6 @@ public record AppUserDTO(
         String firstName,
         String lastName,
         String email,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<String> roles
 ) { }
