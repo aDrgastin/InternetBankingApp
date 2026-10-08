@@ -11,5 +11,5 @@ public record RegisterRequest(
         @NotBlank(message = "Password cannot be empty") String password,
         @NotBlank(message = "First name cannot be empty") String firstName,
         @NotBlank(message = "Last name cannot be empty") String lastName,
-        @Email(message = "Invalid email format") @Size(message = "Email can be maximum {max} characters long", max = 75) String email
+        @NotBlank(message = "Email cannot be empty") @Email(message = "Invalid email format") @Size(message = "Email can be maximum {max} characters long", max = 75) String email
 ) { }
