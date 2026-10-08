@@ -5,6 +5,8 @@ import com.adrgastin.banking.account.AccountRepository;
 import com.adrgastin.banking.exception.DuplicateResourceException;
 import com.adrgastin.banking.exception.ResourceNotFoundException;
 import com.adrgastin.banking.generator.CardNumberGenerator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,9 @@ public class CardService {
     private final CardNumberGenerator generator;
     @Value("${banking.card.validity-months:60}")
     private int VALIDITY_MONTHS;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public List<CardDTO> getAllByUserId(Integer userId) {
@@ -45,6 +50,10 @@ public class CardService {
     public CardDTO create(CreateCardCommand command, Integer requestingUserId) {
         Account account = accountRepository.findById(command.accountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", command.accountId()));
+
+        entityManager.createNativeQuery("SET @session_user_id = :userId")
+                .setParameter("userId", requestingUserId)
+                .executeUpdate();
 
         Card card = new Card(null, account, generator.generate(), command.type(), CardStatus.ACTIVE, LocalDate.now().plusMonths(VALIDITY_MONTHS), null);
         Card saved;
@@ -68,6 +77,10 @@ public class CardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Card", id));
         boolean owns = found.getAccount().getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
         if (!owns && !isPrivileged) throw new ResourceNotFoundException("Card", id);
+
+        entityManager.createNativeQuery("SET @session_user_id = :userId")
+                .setParameter("userId", requestingUserId)
+                .executeUpdate();
 
         found.setStatus(command.status());
         Card updated = cardRepository.save(found);

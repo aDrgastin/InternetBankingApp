@@ -191,7 +191,7 @@ END$$
 
 CREATE TRIGGER `trg_transaction_insert` AFTER INSERT ON `transaction` FOR EACH ROW
 BEGIN
-    INSERT INTO audit_log(table_name, action, record_id, new_data) VALUES('transaction', 'INSERT', NEW.id, JSON_OBJECT(
+    INSERT INTO audit_log(table_name, action, record_id, changed_by, new_data) VALUES('transaction', 'INSERT', NEW.id, @session_user_id, JSON_OBJECT(
         'reference', NEW.reference,
         'amount', NEW.amount,
         'status', NEW.status,

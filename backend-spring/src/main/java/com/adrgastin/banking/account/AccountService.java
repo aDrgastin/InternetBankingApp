@@ -5,6 +5,8 @@ import com.adrgastin.banking.exception.ResourceNotFoundException;
 import com.adrgastin.banking.generator.IbanGenerator;
 import com.adrgastin.banking.user.AppUser;
 import com.adrgastin.banking.user.AppUserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +27,9 @@ public class AccountService {
     private final AppUserRepository appUserRepository;
     private final AccountTypeRepository accountTypeRepository;
     private final IbanGenerator generator;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public AccountDTO getById(Integer id, Integer requestingUserId, boolean isPrivileged) {
@@ -49,6 +54,10 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("AccountType", command.type()));
         Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, accountType, LocalDateTime.now(), new HashSet<>(Set.of(owner)));
 
+        entityManager.createNativeQuery("SET @session_user_id = :userId")
+                .setParameter("userId", requestingUserId)
+                .executeUpdate();
+
         Account saved;
         try {
             saved = accountRepository.save(account);
@@ -71,6 +80,10 @@ public class AccountService {
     public AccountDTO updateStatus(Integer id, UpdateAccountStatusCommand command, Integer requestingUserId) {
         Account found = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", id));
+
+        entityManager.createNativeQuery("SET @session_user_id = :userId")
+                .setParameter("userId", requestingUserId)
+                .executeUpdate();
 
         found.setStatus(command.status());
         Account updated = accountRepository.save(found);
