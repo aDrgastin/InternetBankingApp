@@ -3,6 +3,7 @@ package com.adrgastin.banking.card;
 import com.adrgastin.banking.account.Account;
 import com.adrgastin.banking.account.AccountRepository;
 import com.adrgastin.banking.exception.DuplicateResourceException;
+import com.adrgastin.banking.exception.ForbiddenOperationException;
 import com.adrgastin.banking.exception.ResourceNotFoundException;
 import com.adrgastin.banking.generator.CardNumberGenerator;
 import jakarta.persistence.EntityManager;
@@ -77,6 +78,9 @@ public class CardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Card", id));
         boolean owns = found.getAccount().getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
         if (!owns && !isPrivileged) throw new ResourceNotFoundException("Card", id);
+        if (!isPrivileged && command.status() != CardStatus.BLOCKED) {
+            throw new ForbiddenOperationException("Only staff can set this status");
+        }
 
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)

@@ -66,6 +66,14 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ProblemDetail handleForbiddenOperation(ForbiddenOperationException ex) {
+        log.warn("Forbidden operation: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        pd.setProperty("errorCode", "FORBIDDEN_OPERATION");
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
