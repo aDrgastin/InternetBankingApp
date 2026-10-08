@@ -43,8 +43,8 @@ public class AccountService {
 
     @Transactional
     public AccountDTO create(CreateAccountCommand command, Integer requestingUserId) {
-        AppUser owner = appUserRepository.findById(requestingUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("AppUser", requestingUserId));
+        AppUser owner = appUserRepository.findById(command.ownerId())
+                .orElseThrow(() -> new ResourceNotFoundException("AppUser", command.ownerId()));
         AccountType accountType = accountTypeRepository.findByName(command.type())
                 .orElseThrow(() -> new ResourceNotFoundException("AccountType", command.type()));
         Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, accountType, LocalDateTime.now(), new HashSet<>(Set.of(owner)));

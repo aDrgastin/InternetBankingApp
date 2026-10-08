@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleAccountNotActive(AccountNotActiveException ex) {
         log.warn("Account not active: {}", ex.getMessage());
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
-        pd.setProperty("errorCode", "ACCOUNT_CLOSED");
+        pd.setProperty("errorCode", "ACCOUNT_NOT_ACTIVE");
         return pd;
     }
 
