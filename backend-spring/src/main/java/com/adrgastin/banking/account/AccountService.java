@@ -52,11 +52,13 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("AppUser", command.ownerId()));
         AccountType accountType = accountTypeRepository.findByName(command.type())
                 .orElseThrow(() -> new ResourceNotFoundException("AccountType", command.type()));
-        Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, accountType, LocalDateTime.now(), new HashSet<>(Set.of(owner)));
 
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)
                 .executeUpdate();
+
+        Account account = new Account(null, generator.generate(), BigDecimal.ZERO, AccountStatus.ACTIVE, accountType, null, new HashSet<>(Set.of(owner)));
+        owner.getAccounts().add(account);
 
         Account saved;
         try {
@@ -69,10 +71,10 @@ public class AccountService {
             }
             throw e;
         }
-        owner.getAccounts().add(saved);
+        //owner.getAccounts().add(saved); ?????????????????????????????????????
         //appUserRepository.save(owner);
 
-        log.info("Account {} created for user {}", saved.getId(), owner.getId());
+        log.info("Account {} created for user {} by {}", saved.getId(), owner.getId(), requestingUserId);
         return AccountDTO.from(saved);
     }
 
@@ -87,7 +89,7 @@ public class AccountService {
 
         found.setStatus(command.status());
         Account updated = accountRepository.save(found);
-        log.info("Status for account {} updated to {}", updated.getId(), updated.getStatus());
+        log.info("Status for account {} updated to {} by {}", updated.getId(), updated.getStatus(), requestingUserId);
         return AccountDTO.from(updated);
     }
 }

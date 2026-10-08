@@ -68,7 +68,7 @@ public class CardService {
             throw e;
         }
 
-        log.info("Card {} created for account {}", saved.getId(), account.getId());
+        log.info("Card {} created for account {} by {}", saved.getId(), account.getId(), requestingUserId);
         return CardDTO.from(saved);
     }
 
@@ -88,7 +88,7 @@ public class CardService {
 
         found.setStatus(command.status());
         Card updated = cardRepository.save(found);
-        log.info("Status for card {} updated to {}", updated.getId(), updated.getStatus());
+        log.info("Status for card {} updated to {} by {}", updated.getId(), updated.getStatus(), requestingUserId);
         return CardDTO.from(updated);
     }
 }

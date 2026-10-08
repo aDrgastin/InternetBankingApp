@@ -66,12 +66,12 @@ public class TransactionService {
         if (to.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + to.getId());
         if (from.getBalance().compareTo(command.amount()) < 0) throw new InsufficientFundsException("Insufficient funds: " + from.getId());
 
-        from.setBalance(from.getBalance().subtract(command.amount()));
-        to.setBalance(to.getBalance().add(command.amount()));
-
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)
                 .executeUpdate();
+
+        from.setBalance(from.getBalance().subtract(command.amount()));
+        to.setBalance(to.getBalance().add(command.amount()));
 
         Transaction transaction = new Transaction();
         transaction.setReference(UUID.randomUUID().toString());
@@ -100,11 +100,11 @@ public class TransactionService {
         if (account.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + account.getId());
         if (account.getBalance().compareTo(command.amount()) < 0) throw new InsufficientFundsException("Insufficient funds: " + account.getId());
 
-        account.setBalance(account.getBalance().subtract(command.amount()));
-
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)
                 .executeUpdate();
+
+        account.setBalance(account.getBalance().subtract(command.amount()));
 
         Transaction transaction = new Transaction();
         transaction.setReference(UUID.randomUUID().toString());
@@ -130,11 +130,11 @@ public class TransactionService {
         if (account.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + account.getId());
         if (account.getBalance().compareTo(command.amount()) < 0) throw new InsufficientFundsException("Insufficient funds: " + account.getId());
 
-        account.setBalance(account.getBalance().subtract(command.amount()));
-
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)
                 .executeUpdate();
+
+        account.setBalance(account.getBalance().subtract(command.amount()));
 
         Transaction transaction = new Transaction();
         transaction.setReference(UUID.randomUUID().toString());
@@ -156,11 +156,11 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
         if (account.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + account.getId());
 
-        account.setBalance(account.getBalance().add(command.amount()));
-
         entityManager.createNativeQuery("SET @session_user_id = :userId")
                 .setParameter("userId", requestingUserId)
                 .executeUpdate();
+
+        account.setBalance(account.getBalance().add(command.amount()));
 
         Transaction transaction = new Transaction();
         transaction.setReference(UUID.randomUUID().toString());
