@@ -93,9 +93,6 @@ public class TransactionService {
     public TransactionDTO posPayout(PosPayoutCommand command, Integer requestingUserId) {
         Card card = cardRepository.findByCardNumber(command.cardNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Card", command.cardNumber()));
-        boolean owns = card.getAccount().getUsers().stream()
-                .anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Card", command.cardNumber());
         if (card.getStatus() != CardStatus.ACTIVE) throw new CardNotActiveException("Card not active: " + card.getId());
 
         Account account = accountRepository.findByIdForUpdate(card.getAccount().getId())
@@ -130,8 +127,6 @@ public class TransactionService {
     public TransactionDTO withdrawFunds(Integer accountId, WithdrawFundsCommand command, Integer requestingUserId) {
         Account account = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
-        boolean owns = account.getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Account", accountId);
         if (account.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + account.getId());
         if (account.getBalance().compareTo(command.amount()) < 0) throw new InsufficientFundsException("Insufficient funds: " + account.getId());
 
@@ -159,8 +154,6 @@ public class TransactionService {
     public TransactionDTO depositFunds(Integer accountId, DepositFundsCommand command, Integer requestingUserId) {
         Account account = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
-        boolean owns = account.getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Account", accountId);
         if (account.getStatus() != AccountStatus.ACTIVE) throw new AccountNotActiveException("Account not active: " + account.getId());
 
         account.setBalance(account.getBalance().add(command.amount()));

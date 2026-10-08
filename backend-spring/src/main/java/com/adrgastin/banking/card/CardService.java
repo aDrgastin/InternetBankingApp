@@ -31,12 +31,12 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public CardDTO getById(Integer id, Integer requestingUserId) {
+    public CardDTO getById(Integer id, Integer requestingUserId, boolean isPrivileged) {
         Card card = cardRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Card", id));
 
         boolean owns = card.getAccount().getUsers().stream()
                 .anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Card", id);
+        if (!owns && !isPrivileged) throw new ResourceNotFoundException("Card", id);
 
         return CardDTO.from(card);
     }
@@ -45,8 +45,6 @@ public class CardService {
     public CardDTO create(CreateCardCommand command, Integer requestingUserId) {
         Account account = accountRepository.findById(command.accountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", command.accountId()));
-        boolean owns = account.getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Account", command.accountId());
 
         Card card = new Card(null, account, generator.generate(), command.type(), CardStatus.ACTIVE, LocalDate.now().plusMonths(VALIDITY_MONTHS), null);
         Card saved;
@@ -65,11 +63,11 @@ public class CardService {
     }
 
     @Transactional
-    public CardDTO updateStatus(Integer id, UpdateCardStatusCommand command, Integer requestingUserId) {
+    public CardDTO updateStatus(Integer id, UpdateCardStatusCommand command, Integer requestingUserId, boolean isPrivileged) {
         Card found = cardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Card", id));
         boolean owns = found.getAccount().getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Card", id);
+        if (!owns && !isPrivileged) throw new ResourceNotFoundException("Card", id);
 
         found.setStatus(command.status());
         Card updated = cardRepository.save(found);

@@ -27,11 +27,11 @@ public class AccountService {
     private final IbanGenerator generator;
 
     @Transactional(readOnly = true)
-    public AccountDTO getById(Integer id, Integer requestingUserId) {
+    public AccountDTO getById(Integer id, Integer requestingUserId, boolean isPrivileged) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account", id));
 
         boolean owns = account.getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Account", id);
+        if (!owns && !isPrivileged) throw new ResourceNotFoundException("Account", id);
 
         return AccountDTO.from(account);
     }
@@ -71,8 +71,6 @@ public class AccountService {
     public AccountDTO updateStatus(Integer id, UpdateAccountStatusCommand command, Integer requestingUserId) {
         Account found = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", id));
-        boolean owns = found.getUsers().stream().anyMatch(u -> u.getId().equals(requestingUserId));
-        if (!owns) throw new ResourceNotFoundException("Account", id);
 
         found.setStatus(command.status());
         Account updated = accountRepository.save(found);
